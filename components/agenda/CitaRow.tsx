@@ -32,6 +32,11 @@ export function CitaRow({ cita, onEdit, onCancel }: CitaRowProps) {
               <Plane className="h-3 w-3 text-[var(--color-primary-light)] flex-shrink-0" />
             </span>
           )}
+          {cita.esDemo && (
+            <span className="text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 flex-shrink-0">
+              Demo
+            </span>
+          )}
         </div>
         <p className="text-[var(--color-text-subtle)] text-xs truncate">{ESPECIALIDAD_LABELS[cita.tratamiento]}</p>
         <div className="flex items-center gap-3 mt-1.5 flex-wrap">

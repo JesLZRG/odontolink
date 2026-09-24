@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return fail("Correo o contrasena incorrectos", 401)
     }
-    if (user.rol !== rol) {
+    // El rol "admin" no aparece en el selector publico (paciente/clinica), asi que
+    // esas cuentas pueden iniciar sesion sin importar cual pestana este seleccionada.
+    if (user.rol !== rol && user.rol !== "admin") {
       const tipo = user.rol === "clinica" ? "Clinica" : "Paciente"
       return fail(`Esta cuenta es de tipo ${tipo}. Selecciona "${tipo}" arriba para ingresar.`, 403)
     }

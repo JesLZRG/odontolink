@@ -22,10 +22,16 @@ export function formatDate(dateString: string, locale = "es-MX"): string {
   })
 }
 
+// Las citas se guardan como hora "de pared" de la clinica sin zona horaria
+// real (ver lib/clinicas/store.ts). Por eso se muestran siempre en UTC: si
+// se formatearan en la zona horaria del navegador, la hora se correria segun
+// donde este el visitante (ej. 9:30am guardado se veria como 2:30am en un
+// navegador en UTC-7).
 export function formatTime(dateString: string, locale = "es-MX"): string {
   return new Date(dateString).toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC",
   })
 }
 

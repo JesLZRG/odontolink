@@ -1,5 +1,5 @@
-﻿import { NextRequest, NextResponse } from "next/server"
-import { CLINICAS_MOCK } from "@/lib/mock-data"
+import { NextRequest, NextResponse } from "next/server"
+import { findClinicaByIdOrSlug } from "@/lib/clinicas/store"
 import type { ApiResponse, Clinica } from "@/types"
 
 export async function GET(
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const clinica = CLINICAS_MOCK.find((c) => c.id === id || c.slug === id)
+    const clinica = await findClinicaByIdOrSlug(id)
     if (!clinica) {
       return NextResponse.json(
         { data: null, success: false, message: "Clinica no encontrada" },

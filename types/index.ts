@@ -3,7 +3,7 @@
 // i18n-ready: all UI strings go through translation keys
 // ============================================================
 
-export type UserRole = "paciente" | "clinica"
+export type UserRole = "paciente" | "clinica" | "admin"
 
 // Datos publicos de una cuenta (nunca incluye el hash de la contrasena)
 export interface Usuario {
@@ -81,6 +81,7 @@ export interface Cita {
   id: string
   pacienteId: string
   pacienteNombre: string
+  pacienteEmail?: string
   pacienteAvatar?: string
   clinicaId: string
   doctorId: string
@@ -91,6 +92,7 @@ export interface Cita {
   estado: EstadoCita
   notas?: string
   esTurismo: boolean
+  esDemo: boolean
 }
 
 export type EstadoCita =

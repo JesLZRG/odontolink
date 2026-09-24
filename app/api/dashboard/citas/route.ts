@@ -1,5 +1,6 @@
-﻿import { NextRequest, NextResponse } from "next/server"
-import { CITAS_MOCK } from "@/lib/mock-data"
+import { NextRequest, NextResponse } from "next/server"
+import { supabaseAdmin } from "@/lib/supabase/admin"
+import { diaRange, fromCitaRow } from "@/lib/clinicas/store"
 import { getCurrentUser } from "@/lib/auth/session"
 import type { ApiResponse, Cita } from "@/types"
 
@@ -13,9 +14,16 @@ export async function GET(request: NextRequest) {
     // Cada clinica solo ve sus propias citas
     const clinicaId = user.clinicaId
     const fecha = searchParams.get("fecha")
-    let citas = CITAS_MOCK.filter((c) => c.clinicaId === clinicaId)
-    if (fecha) citas = citas.filter((c) => c.fecha.startsWith(fecha))
-    citas.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
+
+    let query = supabaseAdmin().from("citas").select("*").eq("clinica_id", clinicaId ?? "")
+    if (fecha) {
+      const [inicio, fin] = diaRange(fecha)
+      query = query.gte("fecha", inicio).lt("fecha", fin)
+    }
+    const { data, error } = await query.order("fecha", { ascending: true })
+    if (error) throw error
+    const citas = (data as Parameters<typeof fromCitaRow>[0][]).map(fromCitaRow)
+
     const response: ApiResponse<Cita[]> = {
       data: citas,
       success: true,

@@ -102,6 +102,16 @@ export async function findUserById(id: string): Promise<UsuarioRecord | null> {
   return data ? fromRow(data as UsuarioRow) : null
 }
 
+export async function listUsersByRole(rol: UserRole): Promise<UsuarioRecord[]> {
+  const { data, error } = await supabaseAdmin()
+    .from("usuarios")
+    .select("*")
+    .eq("rol", rol)
+    .order("creado_en", { ascending: false })
+  if (error) throw error
+  return (data as UsuarioRow[]).map(fromRow)
+}
+
 export interface NuevoUsuario {
   email: string
   nombre: string

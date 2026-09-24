@@ -46,9 +46,10 @@ export function AgendaCalendar({
   const citasByDay = useMemo(() => {
     const map: Record<number, Cita[]> = {}
     citas.forEach((cita) => {
+      // UTC: las citas se guardan sin zona horaria real (hora "de pared" de la clinica)
       const d = new Date(cita.fecha)
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        const day = d.getDate()
+      if (d.getUTCMonth() === currentMonth && d.getUTCFullYear() === currentYear) {
+        const day = d.getUTCDate()
         if (!map[day]) map[day] = []
         map[day].push(cita)
       }

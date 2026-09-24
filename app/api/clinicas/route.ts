@@ -1,5 +1,5 @@
-﻿import { NextRequest, NextResponse } from "next/server"
-import { CLINICAS_MOCK } from "@/lib/mock-data"
+import { NextRequest, NextResponse } from "next/server"
+import { listClinicas } from "@/lib/clinicas/store"
 import type { ApiResponse, Clinica, FiltrosDirectorio } from "@/types"
 
 export async function GET(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const pagina = parseInt(searchParams.get("pagina") ?? "1")
     const porPagina = parseInt(searchParams.get("porPagina") ?? "12")
 
-    let clinicas = [...CLINICAS_MOCK]
+    let clinicas = await listClinicas()
 
     if (busqueda) {
       const query = busqueda.toLowerCase()
@@ -46,10 +46,6 @@ export async function GET(request: NextRequest) {
     const total = clinicas.length
     const inicio = (pagina - 1) * porPagina
     const paginadas = clinicas.slice(inicio, inicio + porPagina)
-
-    if (process.env.NODE_ENV === "development") {
-      await new Promise((resolve) => setTimeout(resolve, 200))
-    }
 
     const response: ApiResponse<Clinica[]> = {
       data: paginadas,

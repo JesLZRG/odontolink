@@ -71,7 +71,8 @@ export function CitaModal({ open, cita, defaultDate, doctores, onClose, onSave }
         pacienteNombre: cita.pacienteNombre,
         doctorId: cita.doctorId,
         fecha: cita.fecha.split("T")[0],
-        hora: citaDate.toTimeString().slice(0, 5),
+        // UTC: las citas se guardan sin zona horaria real (hora "de pared" de la clinica)
+        hora: `${String(citaDate.getUTCHours()).padStart(2, "0")}:${String(citaDate.getUTCMinutes()).padStart(2, "0")}`,
         tratamiento: cita.tratamiento,
         duracionMinutos: cita.duracionMinutos,
         notas: cita.notas ?? "",

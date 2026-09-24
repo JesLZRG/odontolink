@@ -40,5 +40,7 @@ export async function getCurrentUser(): Promise<UsuarioRecord | null> {
 }
 
 export function homeForRole(rol: UserRole) {
-  return rol === "clinica" ? "/dashboard" : "/directorio"
+  if (rol === "clinica") return "/dashboard"
+  if (rol === "admin") return "/admin"
+  return "/directorio"
 }

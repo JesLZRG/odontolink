@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { ArrowLeft, BadgeCheck, Building2, Loader2, Lock, LogOut, MapPin, Phone, Trash2, User } from "lucide-react"
+import { ArrowLeft, BadgeCheck, Building2, CalendarClock, Loader2, Lock, LogOut, MapPin, Phone, Trash2, User } from "lucide-react"
 import { logout, useSession } from "@/components/auth/useSession"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -266,13 +266,24 @@ export default function CuentaPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-5">
-        <Link
-          href={inicio}
-          className="text-sm text-slate-500 hover:text-[var(--color-primary)] inline-flex items-center gap-1.5 self-start transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {user.rol === "clinica" ? "Volver al panel" : "Volver al directorio"}
-        </Link>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <Link
+            href={inicio}
+            className="text-sm text-slate-500 hover:text-[var(--color-primary)] inline-flex items-center gap-1.5 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {user.rol === "clinica" ? "Volver al panel" : "Volver al directorio"}
+          </Link>
+          {user.rol === "paciente" && (
+            <Link
+              href="/mis-citas"
+              className="text-sm font-medium text-[var(--color-primary)] hover:underline inline-flex items-center gap-1.5"
+            >
+              <CalendarClock className="h-4 w-4" />
+              Mis citas
+            </Link>
+          )}
+        </div>
 
         {/* Resumen */}
         <div className="flex items-center gap-4">

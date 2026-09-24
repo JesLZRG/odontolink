@@ -5,8 +5,12 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/token"
 // la validacion completa (usuario existente, version de sesion) ocurre en getCurrentUser().
 
 const SOLO_CLINICA = ["/dashboard", "/agenda", "/api/dashboard", "/api/agenda"]
-const REQUIERE_SESION = [...SOLO_CLINICA, "/cuenta"]
+const SOLO_ADMIN = ["/admin", "/api/admin"]
+const SOLO_PACIENTE = ["/mis-citas", "/api/mis-citas"]
+const REQUIERE_SESION = [...SOLO_CLINICA, ...SOLO_ADMIN, ...SOLO_PACIENTE, "/cuenta"]
 const SOLO_INVITADOS = ["/login", "/recuperar", "/restablecer"]
+
+const homeForRole = (rol: string) => (rol === "clinica" ? "/dashboard" : rol === "admin" ? "/admin" : "/directorio")
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`))
@@ -25,11 +29,21 @@ export function proxy(request: NextRequest) {
 
   if (session && matches(pathname, SOLO_CLINICA) && session.rol !== "clinica") {
     if (isApi) return NextResponse.json({ success: false, message: "Acceso solo para clinicas" }, { status: 403 })
-    return NextResponse.redirect(new URL("/directorio", request.url))
+    return NextResponse.redirect(new URL(homeForRole(session.rol), request.url))
+  }
+
+  if (session && matches(pathname, SOLO_ADMIN) && session.rol !== "admin") {
+    if (isApi) return NextResponse.json({ success: false, message: "Acceso solo para administradores" }, { status: 403 })
+    return NextResponse.redirect(new URL(homeForRole(session.rol), request.url))
+  }
+
+  if (session && matches(pathname, SOLO_PACIENTE) && session.rol !== "paciente") {
+    if (isApi) return NextResponse.json({ success: false, message: "Acceso solo para pacientes" }, { status: 403 })
+    return NextResponse.redirect(new URL(homeForRole(session.rol), request.url))
   }
 
   if (session && matches(pathname, SOLO_INVITADOS)) {
-    return NextResponse.redirect(new URL(session.rol === "clinica" ? "/dashboard" : "/directorio", request.url))
+    return NextResponse.redirect(new URL(homeForRole(session.rol), request.url))
   }
 
   return NextResponse.next()
@@ -39,11 +53,15 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/agenda/:path*",
+    "/admin/:path*",
     "/cuenta/:path*",
+    "/mis-citas/:path*",
     "/login",
     "/recuperar",
     "/restablecer",
     "/api/dashboard/:path*",
     "/api/agenda/:path*",
+    "/api/admin/:path*",
+    "/api/mis-citas/:path*",
   ],
 }

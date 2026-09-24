@@ -1,8 +1,9 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Bell, CalendarDays, ChevronDown, Filter, Menu, Plus, Search } from "lucide-react"
+import { CalendarDays, ChevronDown, Filter, Menu, Plus, Search } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
+import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
 import { AgendaCalendar } from "@/components/agenda/AgendaCalendar"
 import { CitaRow } from "@/components/agenda/CitaRow"
 import { CitaModal } from "@/components/agenda/CitaModal"
@@ -144,10 +145,7 @@ export default function AgendaPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-xl text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--color-secondary)] rounded-full" />
-            </button>
+            <NotificationsBell />
             <button onClick={openNew} className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl gradient-brand text-white text-sm font-medium hover:opacity-90 transition-opacity">
               <Plus className="h-4 w-4" />
               Nueva cita

@@ -9,8 +9,9 @@ import { TodayAppointments } from "@/components/dashboard/TodayAppointments"
 import type { Cita, DashboardStats } from "@/types"
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils"
 import { useSession } from "@/components/auth/useSession"
+import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
 import Link from "next/link"
-import { Bell, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 
 export default function DashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -116,10 +117,7 @@ export default function DashboardPage() {
 
           {/* Header actions */}
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-xl text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--color-secondary)] rounded-full" />
-            </button>
+            <NotificationsBell />
             <Link
               href="/cuenta"
               title="Mi cuenta"

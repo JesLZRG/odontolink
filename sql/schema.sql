@@ -7,7 +7,7 @@ create table if not exists public.usuarios (
   id                uuid primary key default gen_random_uuid(),
   email             text not null unique,
   nombre            text not null,
-  rol               text not null check (rol in ('paciente', 'clinica')),
+  rol               text not null check (rol in ('paciente', 'clinica', 'admin')),
   telefono          text,
   ciudad            text,
   clinica_id        text,
@@ -31,3 +31,12 @@ create index if not exists auth_tokens_expira_idx on public.auth_tokens (expira_
 -- La app solo usa la service role key desde el servidor, que ignora RLS.
 alter table public.usuarios enable row level security;
 alter table public.auth_tokens enable row level security;
+
+-- Permisos explicitos para el rol de servidor (service_role). Por defecto Supabase
+-- ya se los da a las tablas nuevas, pero los dejamos explicitos por si el proyecto
+-- tiene una configuracion distinta.
+grant usage on schema public to service_role;
+grant all on public.usuarios to service_role;
+grant all on public.auth_tokens to service_role;
+
+notify pgrst, 'reload schema';

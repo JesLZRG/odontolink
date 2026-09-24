@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard, CalendarDays, Users, FolderOpen,
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
-  Bell
 } from "lucide-react"
 import { cn, getInitials } from "@/lib/utils"
 import { logout, useSession } from "@/components/auth/useSession"
+import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Inicio" },
@@ -105,7 +105,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                 <p className="text-[var(--color-text-subtle)] text-xs truncate">Mi cuenta</p>
               </div>
             </Link>
-            <Bell className="h-4 w-4 text-[var(--color-text-subtle)] hover:text-white cursor-pointer flex-shrink-0" />
+            <NotificationsBell dropdownPosition="top" />
           </div>
         )}
 
