@@ -7,7 +7,9 @@ import { StatsCard } from "@/components/dashboard/StatsCard"
 import { AppointmentCalendar } from "@/components/dashboard/AppointmentCalendar"
 import { TodayAppointments } from "@/components/dashboard/TodayAppointments"
 import type { Cita, DashboardStats } from "@/types"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { formatCurrency, formatDate, getInitials } from "@/lib/utils"
+import { useSession } from "@/components/auth/useSession"
+import Link from "next/link"
 import { Bell, Menu } from "lucide-react"
 
 export default function DashboardPage() {
@@ -17,6 +19,7 @@ export default function DashboardPage() {
   const [citas, setCitas] = useState<Cita[]>([])
   const [loadingStats, setLoadingStats] = useState(true)
   const [loadingCitas, setLoadingCitas] = useState(true)
+  const { user } = useSession()
 
   const now = new Date()
   const greeting = now.getHours() < 12 ? "Buenos dias" : now.getHours() < 18 ? "Buenas tardes" : "Buenas noches"
@@ -30,7 +33,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0]
-    fetch(`/api/dashboard/citas?clinicaId=1&fecha=${today}`)
+    fetch(`/api/dashboard/citas?fecha=${today}`)
       .then((r) => r.json())
       .then((j) => { if (j.success) setCitas(j.data) })
       .finally(() => setLoadingCitas(false))
@@ -103,7 +106,7 @@ export default function DashboardPage() {
 
             <div>
               <h1 className="text-white font-semibold text-sm sm:text-base">
-                {greeting}, <span className="gradient-brand-text">Sonrisa Perfecta</span> 👋
+                {greeting}, <span className="gradient-brand-text">{user?.nombre ?? ""}</span> 👋
               </h1>
               <p className="text-[var(--color-text-subtle)] text-xs capitalize">
                 {formatDate(now.toISOString())}
@@ -117,9 +120,13 @@ export default function DashboardPage() {
               <Bell className="h-5 w-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--color-secondary)] rounded-full" />
             </button>
-            <div className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold">
-              SP
-            </div>
+            <Link
+              href="/cuenta"
+              title="Mi cuenta"
+              className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold hover:opacity-90 transition-opacity"
+            >
+              {user ? getInitials(user.nombre) : ""}
+            </Link>
           </div>
         </header>
 

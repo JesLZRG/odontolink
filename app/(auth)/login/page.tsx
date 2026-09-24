@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { RoleToggle } from "@/components/auth/RoleToggle"
 import { LoginForm } from "@/components/auth/LoginForm"
@@ -139,7 +140,46 @@ function BrandPanel() {
   )
 }
 
+const AVISOS: Record<string, { tipo: "ok" | "error"; texto: string }> = {
+  verificado: { tipo: "ok", texto: "Correo confirmado! Ya puedes iniciar sesion." },
+  restablecida: { tipo: "ok", texto: "Contrasena actualizada. Inicia sesion con tu nueva contrasena." },
+  eliminada: { tipo: "ok", texto: "Tu cuenta fue eliminada." },
+  enlace_invalido: { tipo: "error", texto: "El enlace no es valido o ya expiro. Solicita uno nuevo." },
+}
+
+function AvisoUrl() {
+  const params = useSearchParams()
+  const clave = params.get("verificado")
+    ? "verificado"
+    : params.get("restablecida")
+      ? "restablecida"
+      : params.get("eliminada")
+        ? "eliminada"
+        : params.get("error")
+  const aviso = clave ? AVISOS[clave] : undefined
+  if (!aviso) return null
+  return (
+    <div
+      className={`mb-5 rounded-xl p-3 text-sm border ${
+        aviso.tipo === "ok"
+          ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+          : "bg-red-50 border-red-200 text-red-600"
+      }`}
+    >
+      {aviso.texto}
+    </div>
+  )
+}
+
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  )
+}
+
+function LoginContent() {
   const [role, setRole] = useState<UserRole>("paciente")
   const [tab, setTab] = useState<AuthTab>("login")
 
@@ -166,6 +206,8 @@ export default function LoginPage() {
                 : "Empieza gratis hoy mismo"}
             </p>
           </div>
+
+          <AvisoUrl />
 
           {/* Role toggle */}
           <div className="mb-6">

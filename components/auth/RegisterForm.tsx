@@ -4,30 +4,32 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useRouter } from "next/navigation"
-import { Building2, Eye, EyeOff, Lock, Mail, MapPin, Phone, User } from "lucide-react"
+import { Building2, Eye, EyeOff, Lock, Mail, MailCheck, MapPin, Phone, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { passwordSchema } from "@/lib/auth/schemas"
 import type { UserRole } from "@/types"
 
-const pacienteSchema = z.object({
-  nombre: z.string().min(2, "Ingresa tu nombre completo"),
+const baseSchema = z.object({
   email: z.string().email("Ingresa un correo valido"),
-  password: z
-    .string()
-    .min(8, "Minimo 8 caracteres")
-    .regex(/[A-Z]/, "Debe contener una mayuscula")
-    .regex(/[0-9]/, "Debe contener un numero"),
+  password: passwordSchema,
   telefono: z.string().min(10, "Telefono invalido"),
 })
 
-const clinicaSchema = pacienteSchema.extend({
+const pacienteSchema = baseSchema.extend({
+  nombre: z.string().min(2, "Ingresa tu nombre completo"),
+})
+
+const clinicaSchema = baseSchema.extend({
   nombreClinica: z.string().min(3, "Ingresa el nombre de la clinica"),
   ciudad: z.string().min(2, "Ingresa la ciudad"),
 })
 
-type PacienteValues = z.infer<typeof pacienteSchema>
-type ClinicaValues = z.infer<typeof clinicaSchema>
+type RegisterValues = z.infer<typeof baseSchema> & {
+  nombre?: string
+  nombreClinica?: string
+  ciudad?: string
+}
 
 interface RegisterFormProps {
   role: UserRole
@@ -36,33 +38,28 @@ interface RegisterFormProps {
 export function RegisterForm({ role }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
-  const [successMsg, setSuccessMsg] = useState<string | null>(null)
-  const router = useRouter()
-
-  const schema = role === "clinica" ? clinicaSchema : pacienteSchema
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null)
+  const [resendMsg, setResendMsg] = useState<string | null>(null)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<PacienteValues | ClinicaValues>({
-    resolver: zodResolver(schema),
+  } = useForm<RegisterValues>({
+    resolver: zodResolver(role === "clinica" ? clinicaSchema : pacienteSchema),
   })
 
-  async function onSubmit(data: PacienteValues | ClinicaValues) {
+  async function onSubmit(data: RegisterValues) {
     setServerError(null)
     try {
-      const body =
-        role === "clinica"
-          ? {
-              nombre: (data as ClinicaValues).nombreClinica,
-              email: data.email,
-              password: data.password,
-              telefono: data.telefono,
-              ciudad: (data as ClinicaValues).ciudad,
-              rol: role,
-            }
-          : { nombre: data.nombre, email: data.email, password: data.password, telefono: data.telefono, rol: role }
+      const body = {
+        nombre: role === "clinica" ? data.nombreClinica : data.nombre,
+        email: data.email,
+        password: data.password,
+        telefono: data.telefono,
+        ciudad: role === "clinica" ? data.ciudad : undefined,
+        rol: role,
+      }
 
       const res = await fetch("/api/auth/registro", {
         method: "POST",
@@ -74,11 +71,43 @@ export function RegisterForm({ role }: RegisterFormProps) {
         setServerError(json.message ?? "Error al registrar")
         return
       }
-      setSuccessMsg(json.data.message)
-      setTimeout(() => router.push(json.data.redirectTo), 1500)
+      setRegisteredEmail(json.data.email)
     } catch {
       setServerError("Error de conexion. Intenta de nuevo.")
     }
+  }
+
+  async function resend() {
+    const res = await fetch("/api/auth/reenviar-verificacion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: registeredEmail }),
+    }).catch(() => null)
+    const json = await res?.json().catch(() => null)
+    setResendMsg(json?.message ?? "Error de conexion. Intenta de nuevo.")
+  }
+
+  if (registeredEmail) {
+    return (
+      <div className="text-center py-4">
+        <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-4">
+          <MailCheck className="h-7 w-7 text-emerald-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-slate-900">Revisa tu correo</h3>
+        <p className="text-sm text-slate-500 mt-2">
+          Enviamos un enlace de confirmacion a{" "}
+          <span className="font-medium text-slate-700">{registeredEmail}</span>. Abrelo para activar tu cuenta y
+          despues inicia sesion.
+        </p>
+        <p className="text-xs text-slate-400 mt-4">
+          No te llego?{" "}
+          <button type="button" onClick={resend} className="text-[var(--color-primary)] font-medium hover:underline">
+            Reenviar correo
+          </button>
+        </p>
+        {resendMsg && <p className="text-xs text-slate-500 mt-2">{resendMsg}</p>}
+      </div>
+    )
   }
 
   return (
@@ -87,9 +116,10 @@ export function RegisterForm({ role }: RegisterFormProps) {
         <Input
           label="Nombre completo"
           type="text"
+          autoComplete="name"
           placeholder="Ana Torres"
           icon={<User className="h-4 w-4" />}
-          error={(errors as Record<string, {message?: string}>).nombre?.message}
+          error={errors.nombre?.message}
           {...register("nombre")}
         />
       )}
@@ -99,18 +129,19 @@ export function RegisterForm({ role }: RegisterFormProps) {
           <Input
             label="Nombre de la clinica"
             type="text"
+            autoComplete="organization"
             placeholder="Sonrisa Perfecta Dental"
             icon={<Building2 className="h-4 w-4" />}
-            error={(errors as Record<string, {message?: string}>).nombreClinica?.message}
-            {...register("nombreClinica" as keyof (PacienteValues | ClinicaValues))}
+            error={errors.nombreClinica?.message}
+            {...register("nombreClinica")}
           />
           <Input
             label="Ciudad"
             type="text"
             placeholder="Tijuana, B.C."
             icon={<MapPin className="h-4 w-4" />}
-            error={(errors as Record<string, {message?: string}>).ciudad?.message}
-            {...register("ciudad" as keyof (PacienteValues | ClinicaValues))}
+            error={errors.ciudad?.message}
+            {...register("ciudad")}
           />
         </>
       )}
@@ -118,6 +149,7 @@ export function RegisterForm({ role }: RegisterFormProps) {
       <Input
         label="Correo electronico"
         type="email"
+        autoComplete="email"
         placeholder="tu@correo.com"
         icon={<Mail className="h-4 w-4" />}
         error={errors.email?.message}
@@ -127,6 +159,7 @@ export function RegisterForm({ role }: RegisterFormProps) {
       <Input
         label="Telefono"
         type="tel"
+        autoComplete="tel"
         placeholder="+52 664 123 4567"
         icon={<Phone className="h-4 w-4" />}
         error={errors.telefono?.message}
@@ -136,10 +169,16 @@ export function RegisterForm({ role }: RegisterFormProps) {
       <Input
         label="Contrasena"
         type={showPassword ? "text" : "password"}
+        autoComplete="new-password"
         placeholder="Min. 8 caracteres, 1 mayuscula, 1 numero"
         icon={<Lock className="h-4 w-4" />}
         iconRight={
-          <button type="button" onClick={() => setShowPassword(!showPassword)} className="hover:text-slate-600 transition-colors">
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="hover:text-slate-600 transition-colors"
+            aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+          >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         }
@@ -150,15 +189,6 @@ export function RegisterForm({ role }: RegisterFormProps) {
       {serverError && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
           {serverError}
-        </div>
-      )}
-
-      {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-sm text-emerald-700 flex items-center gap-2">
-          <svg className="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          {successMsg}
         </div>
       )}
 

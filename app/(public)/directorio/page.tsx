@@ -7,6 +7,8 @@ import { FilterSidebar } from "@/components/directory/FilterSidebar"
 import { ClinicCard } from "@/components/directory/ClinicCard"
 import type { Clinica, FiltrosDirectorio } from "@/types"
 import { Loader2, Search, SlidersHorizontal, X } from "lucide-react"
+import { useSession } from "@/components/auth/useSession"
+import { getInitials } from "@/lib/utils"
 
 const DEFAULT_FILTROS: FiltrosDirectorio = {
   busqueda: "",
@@ -55,6 +57,7 @@ export default function DirectorioPage() {
   const [loading, setLoading] = useState(true)
   const [filtros, setFiltros] = useState<FiltrosDirectorio>(DEFAULT_FILTROS)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const { user } = useSession({ required: false })
 
   const fetchClinicas = useCallback(async (f: FiltrosDirectorio) => {
     setLoading(true)
@@ -118,12 +121,25 @@ export default function DirectorioPage() {
             )}
           </button>
           {/* Auth link */}
-          <Link
-            href="/login"
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 h-9 rounded-xl border border-[var(--color-primary)] text-[var(--color-primary)] text-sm font-medium hover:bg-cyan-50 transition-colors"
-          >
-            Iniciar sesion
-          </Link>
+          {user ? (
+            <Link
+              href="/cuenta"
+              title="Mi cuenta"
+              className="hidden sm:inline-flex items-center gap-2 pl-1 pr-3 h-9 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:border-[var(--color-primary)] transition-colors"
+            >
+              <span className="w-7 h-7 rounded-lg gradient-brand text-white text-xs font-bold flex items-center justify-center">
+                {getInitials(user.nombre)}
+              </span>
+              Mi cuenta
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 h-9 rounded-xl border border-[var(--color-primary)] text-[var(--color-primary)] text-sm font-medium hover:bg-cyan-50 transition-colors"
+            >
+              Iniciar sesion
+            </Link>
+          )}
         </div>
       </header>
 

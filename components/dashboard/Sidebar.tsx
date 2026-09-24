@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -7,7 +7,8 @@ import {
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
   Bell
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, getInitials } from "@/lib/utils"
+import { logout, useSession } from "@/components/auth/useSession"
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Inicio" },
@@ -27,6 +28,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname()
+  const { user } = useSession()
 
   return (
     <aside
@@ -94,13 +96,15 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         {/* User avatar */}
         {!collapsed && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-              SP
-            </div>
-            <div className="overflow-hidden flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">Sonrisa Perfecta</p>
-              <p className="text-[var(--color-text-subtle)] text-xs truncate">Plan Premium</p>
-            </div>
+            <Link href="/cuenta" className="flex items-center gap-3 flex-1 min-w-0 group" title="Mi cuenta">
+              <div className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                {user ? getInitials(user.nombre) : ""}
+              </div>
+              <div className="overflow-hidden flex-1 min-w-0">
+                <p className="text-white text-sm font-medium truncate group-hover:text-[var(--color-primary-light)] transition-colors">{user?.nombre ?? "..."}</p>
+                <p className="text-[var(--color-text-subtle)] text-xs truncate">Mi cuenta</p>
+              </div>
+            </Link>
             <Bell className="h-4 w-4 text-[var(--color-text-subtle)] hover:text-white cursor-pointer flex-shrink-0" />
           </div>
         )}
@@ -122,16 +126,17 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         </button>
 
         {/* Logout */}
-        <Link
-          href="/login"
+        <button
+          type="button"
+          onClick={logout}
           className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-xl text-[var(--color-text-subtle)] hover:text-red-400 hover:bg-red-500/10 transition-all text-sm mt-1",
+            "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[var(--color-text-subtle)] hover:text-red-400 hover:bg-red-500/10 transition-all text-sm mt-1",
             collapsed ? "justify-center" : ""
           )}
         >
           <LogOut className="h-4 w-4 flex-shrink-0" />
           {!collapsed && <span>Cerrar sesion</span>}
-        </Link>
+        </button>
       </div>
     </aside>
   )

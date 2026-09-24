@@ -1,11 +1,17 @@
 ﻿import { NextRequest, NextResponse } from "next/server"
 import { CITAS_MOCK } from "@/lib/mock-data"
+import { getCurrentUser } from "@/lib/auth/session"
 import type { ApiResponse, Cita } from "@/types"
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return NextResponse.json({ data: [], success: false, message: "No autenticado" }, { status: 401 })
+    }
     const { searchParams } = new URL(request.url)
-    const clinicaId = searchParams.get("clinicaId") ?? "1"
+    // Cada clinica solo ve sus propias citas
+    const clinicaId = user.clinicaId
     const fecha = searchParams.get("fecha")
     let citas = CITAS_MOCK.filter((c) => c.clinicaId === clinicaId)
     if (fecha) citas = citas.filter((c) => c.fecha.startsWith(fecha))

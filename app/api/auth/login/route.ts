@@ -1,44 +1,47 @@
 import { NextRequest, NextResponse } from "next/server"
-import type { UserRole } from "@/types"
-
-interface LoginBody {
-  email: string
-  password: string
-  rol: UserRole
-}
-
-const USERS_MOCK = [
-  { id: "u1", email: "paciente@demo.com", password: "Demo1234!", rol: "paciente" as UserRole, nombre: "Ana Torres" },
-  { id: "u2", email: "clinica@demo.com", password: "Demo1234!", rol: "clinica" as UserRole, nombre: "Sonrisa Perfecta Dental", clinicaId: "1" },
-]
+import { fail, safeRedirect, validationFail } from "@/lib/auth/flows"
+import { verifyPassword } from "@/lib/auth/password"
+import { rateLimit, resetRateLimit } from "@/lib/auth/rate-limit"
+import { loginSchema } from "@/lib/auth/schemas"
+import { homeForRole, startSession } from "@/lib/auth/session"
+import { findUserByEmail, normalizeEmail, toPublic } from "@/lib/auth/store"
 
 export async function POST(request: NextRequest) {
   try {
-    const body: LoginBody = await request.json()
-    const { email, password, rol } = body
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const user = USERS_MOCK.find((u) => u.email === email && u.password === password && u.rol === rol)
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "Credenciales incorrectas" },
-        { status: 401 }
-      )
+    const body = await request.json()
+    const parsed = loginSchema.safeParse(body)
+    if (!parsed.success) return validationFail(parsed.error)
+    const { email, password, rol, recordarme } = parsed.data
+
+    const limitKey = `login:${normalizeEmail(email)}`
+    if (!rateLimit(limitKey, 10, 15 * 60_000)) {
+      return fail("Demasiados intentos. Espera unos minutos e intenta de nuevo.", 429)
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _pw, ...userWithoutPassword } = user
+
+    const user = await findUserByEmail(email)
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      return fail("Correo o contrasena incorrectos", 401)
+    }
+    if (user.rol !== rol) {
+      const tipo = user.rol === "clinica" ? "Clinica" : "Paciente"
+      return fail(`Esta cuenta es de tipo ${tipo}. Selecciona "${tipo}" arriba para ingresar.`, 403)
+    }
+    if (!user.emailVerificado) {
+      return fail("Debes confirmar tu correo antes de iniciar sesion.", 403, { code: "EMAIL_NO_VERIFICADO" })
+    }
+
+    resetRateLimit(limitKey)
+    await startSession(user, recordarme ?? false)
+
     return NextResponse.json({
       success: true,
       data: {
-        user: userWithoutPassword,
-        token: `mock-jwt-token-${user.id}-${Date.now()}`,
-        redirectTo: rol === "clinica" ? "/dashboard" : "/directorio",
+        user: toPublic(user),
+        redirectTo: safeRedirect(body.next) ?? homeForRole(user.rol),
       },
     })
   } catch (error) {
     console.error("Login error:", error)
-    return NextResponse.json(
-      { success: false, message: "Error interno del servidor" },
-      { status: 500 }
-    )
+    return fail("Error interno del servidor", 500)
   }
 }

@@ -1,41 +1,37 @@
-﻿import { NextRequest, NextResponse } from "next/server"
-import type { UserRole } from "@/types"
-
-interface RegistroBody {
-  nombre: string
-  email: string
-  password: string
-  telefono?: string
-  ciudad?: string
-  rol: UserRole
-}
+import { NextRequest, NextResponse } from "next/server"
+import { fail, sendVerificationEmail, validationFail } from "@/lib/auth/flows"
+import { hashPassword } from "@/lib/auth/password"
+import { rateLimit } from "@/lib/auth/rate-limit"
+import { registroSchema } from "@/lib/auth/schemas"
+import { createUser } from "@/lib/auth/store"
 
 export async function POST(request: NextRequest) {
   try {
-    const body: RegistroBody = await request.json()
-    const { nombre, email, password, rol } = body
-    if (!nombre || !email || !password) {
-      return NextResponse.json(
-        { success: false, message: "Todos los campos son requeridos" },
-        { status: 400 }
-      )
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local"
+    if (!rateLimit(`registro:${ip}`, 5, 60 * 60_000)) {
+      return fail("Demasiados registros desde esta conexion. Intenta mas tarde.", 429)
     }
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    const mockUserId = `u_${Date.now()}`
+
+    const parsed = registroSchema.safeParse(await request.json())
+    if (!parsed.success) return validationFail(parsed.error)
+    const { password, ...datos } = parsed.data
+
+    const user = await createUser({ ...datos, passwordHash: await hashPassword(password) })
+    if (!user) {
+      return fail("Ya existe una cuenta con este correo. Inicia sesion o recupera tu contrasena.", 409)
+    }
+
+    await sendVerificationEmail(user, request.nextUrl.origin)
+
     return NextResponse.json({
       success: true,
       data: {
-        user: { id: mockUserId, nombre, email, rol },
-        token: `mock-jwt-token-${mockUserId}`,
-        redirectTo: rol === "clinica" ? "/dashboard" : "/directorio",
-        message: "Cuenta creada exitosamente! Por favor verifica tu correo.",
+        email: user.email,
+        message: "Cuenta creada. Te enviamos un correo para confirmar tu direccion.",
       },
     })
   } catch (error) {
     console.error("Registro error:", error)
-    return NextResponse.json(
-      { success: false, message: "Error interno del servidor" },
-      { status: 500 }
-    )
+    return fail("Error interno del servidor", 500)
   }
 }

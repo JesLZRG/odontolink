@@ -5,6 +5,19 @@
 
 export type UserRole = "paciente" | "clinica"
 
+// Datos publicos de una cuenta (nunca incluye el hash de la contrasena)
+export interface Usuario {
+  id: string
+  email: string
+  nombre: string
+  rol: UserRole
+  telefono?: string
+  ciudad?: string
+  clinicaId?: string
+  emailVerificado: boolean
+  creadoEn: string
+}
+
 export interface Clinica {
   id: string
   nombre: string
