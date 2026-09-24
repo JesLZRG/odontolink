@@ -61,7 +61,7 @@ function BrandPanel() {
       />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+      <div className="relative z-10 flex flex-col p-12 w-full h-full">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center border border-white/30">
@@ -74,7 +74,7 @@ function BrandPanel() {
         </div>
 
         {/* Main copy */}
-        <div>
+        <div className="flex-1 flex flex-col justify-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -116,25 +116,6 @@ function BrandPanel() {
             ))}
           </motion.div>
         </div>
-
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="grid grid-cols-3 gap-4"
-        >
-          {[
-            { value: "+120", label: "Clinicas registradas" },
-            { value: "+8K", label: "Pacientes atendidos" },
-            { value: "4.9★", label: "Calificacion promedio" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-2xl font-bold text-white">{stat.value}</div>
-              <div className="text-xs text-white/60 mt-0.5">{stat.label}</div>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </div>
   )
