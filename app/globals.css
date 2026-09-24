@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   OdontoLink Design Tokens — CSS Custom Properties
+   Cambiar la paleta editando solo este bloque
+   ============================================================ */
+:root {
+  --color-primary: #0891B2;
+  --color-primary-light: #06B6D4;
+  --color-primary-dark: #0E7490;
+  --color-secondary: #10B981;
+  --color-secondary-light: #34D399;
+  --color-secondary-dark: #059669;
+
+  --color-bg-dark: #0F172A;
+  --color-surface-dark: #1E293B;
+  --color-surface-dark-2: #263548;
+  --color-border-dark: #334155;
+
+  --color-text-primary: #F1F5F9;
+  --color-text-muted: #94A3B8;
+  --color-text-subtle: #64748B;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(8, 145, 178, 0.3), 0 0 40px rgba(8, 145, 178, 0.1);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+  }
+
+  .glow-text-primary {
+    text-shadow: 0 0 20px rgba(8, 145, 178, 0.5);
+  }
+
+  /* Glassmorphism */
+  .glass-dark {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(51, 65, 85, 0.6);
+  }
+
+  .glass-light {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+  }
+
+  /* Brand gradient */
+  .gradient-brand {
+    background: linear-gradient(135deg, #0891B2 0%, #0E7490 50%, #10B981 100%);
+  }
+
+  .gradient-brand-text {
+    background: linear-gradient(135deg, #0891B2, #10B981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    transition: all 0.25s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(8, 145, 178, 0.15);
+  }
+}
