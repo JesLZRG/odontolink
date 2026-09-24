@@ -49,9 +49,9 @@ export function StatsCard({ title, value, subtitle, icon: Icon, trend, color = "
     >
       <div className="flex items-start justify-between mb-4">
         <div>
-          <p className="text-[var(--color-text-subtle)] text-xs font-medium uppercase tracking-wide">{title}</p>
+          <p className="text-[var(--color-text-subtle)] text-xs font-medium uppercase tracking-wide truncate">{title}</p>
           <p className="text-3xl font-bold text-white mt-1 tabular-nums">{value}</p>
-          {subtitle && <p className="text-[var(--color-text-subtle)] text-xs mt-0.5">{subtitle}</p>}
+          {subtitle && <p className="text-[var(--color-text-subtle)] text-xs mt-0.5 whitespace-nowrap">{subtitle}</p>}
         </div>
         <div className={cn("w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0", colors.bg)}>
           <Icon className={cn("h-5 w-5", colors.icon)} />
@@ -59,14 +59,19 @@ export function StatsCard({ title, value, subtitle, icon: Icon, trend, color = "
       </div>
 
       {trend && (
-        <div className="flex items-center gap-1.5">
-          <div className={cn("flex items-center gap-0.5 text-xs font-semibold", trend.value >= 0 ? "text-emerald-400" : "text-red-400")}>
-            <svg className={cn("h-3 w-3", trend.value < 0 && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <div
+            className={cn(
+              "flex items-center gap-0.5 text-xs font-semibold flex-shrink-0",
+              trend.value >= 0 ? "text-emerald-400" : "text-red-400"
+            )}
+          >
+            <svg className={cn("h-3 w-3 flex-shrink-0", trend.value < 0 && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
             {Math.abs(trend.value)}%
           </div>
-          <span className="text-[var(--color-text-subtle)] text-xs">{trend.label}</span>
+          <span className="text-[var(--color-text-subtle)] text-xs truncate">{trend.label}</span>
         </div>
       )}
     </div>

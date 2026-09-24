@@ -44,10 +44,10 @@ export default function DashboardPage() {
     {
       title: "Citas Hoy",
       value: stats?.citasHoy ?? "--",
-      subtitle: `${stats?.tasaOcupacion ?? 0}% de ocupacion`,
+      subtitle: stats?.tasaOcupacion != null ? `${stats.tasaOcupacion}% de ocupacion` : undefined,
       icon: CalendarDays,
       color: "primary" as const,
-      trend: { value: 12, label: "vs ayer" },
+      trend: stats?.citasHoyTrend != null ? { value: stats.citasHoyTrend, label: "vs ayer" } : undefined,
     },
     {
       title: "Pacientes Activos",
@@ -55,7 +55,10 @@ export default function DashboardPage() {
       subtitle: "en el mes",
       icon: Users,
       color: "secondary" as const,
-      trend: { value: 8, label: "vs mes anterior" },
+      trend:
+        stats?.pacientesActivosTrend != null
+          ? { value: stats.pacientesActivosTrend, label: "vs mes anterior" }
+          : undefined,
     },
     {
       title: "Ingresos del Mes",
@@ -63,7 +66,6 @@ export default function DashboardPage() {
       subtitle: "USD estimados",
       icon: DollarSign,
       color: "warning" as const,
-      trend: { value: 23, label: "vs mes anterior" },
     },
     {
       title: "Mensajes Nuevos",
@@ -71,7 +73,6 @@ export default function DashboardPage() {
       subtitle: "sin responder",
       icon: MessageSquare,
       color: "purple" as const,
-      trend: { value: -2, label: "vs ayer" },
     },
   ]
 

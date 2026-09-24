@@ -131,11 +131,13 @@ export interface Doctor {
 
 export interface DashboardStats {
   citasHoy: number
+  citasHoyTrend: number | null
   pacientesActivos: number
+  pacientesActivosTrend: number | null
   ingresosMes: number
   mensajesNuevos: number
   citasSemana: number
-  tasaOcupacion: number
+  tasaOcupacion: number | null
 }
 
 export interface FiltrosDirectorio {
