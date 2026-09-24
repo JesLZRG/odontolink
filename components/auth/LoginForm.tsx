@@ -26,9 +26,6 @@ interface LoginFormProps {
 export function LoginForm({ role }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null)
-  const [resendMsg, setResendMsg] = useState<string | null>(null)
-  const [resending, setResending] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -43,8 +40,6 @@ export function LoginForm({ role }: LoginFormProps) {
 
   async function onSubmit(data: LoginValues) {
     setServerError(null)
-    setPendingEmail(null)
-    setResendMsg(null)
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -54,31 +49,12 @@ export function LoginForm({ role }: LoginFormProps) {
       const json = await res.json()
       if (!json.success) {
         setServerError(json.message ?? "Error al iniciar sesion")
-        if (json.code === "EMAIL_NO_VERIFICADO") setPendingEmail(data.email)
         return
       }
       router.replace(json.data.redirectTo)
       router.refresh()
     } catch {
       setServerError("Error de conexion. Intenta de nuevo.")
-    }
-  }
-
-  async function resendVerification() {
-    if (!pendingEmail) return
-    setResending(true)
-    try {
-      const res = await fetch("/api/auth/reenviar-verificacion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: pendingEmail }),
-      })
-      const json = await res.json()
-      setResendMsg(json.message)
-    } catch {
-      setResendMsg("Error de conexion. Intenta de nuevo.")
-    } finally {
-      setResending(false)
     }
   }
 
@@ -117,17 +93,6 @@ export function LoginForm({ role }: LoginFormProps) {
       {serverError && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
           {serverError}
-          {pendingEmail && !resendMsg && (
-            <button
-              type="button"
-              onClick={resendVerification}
-              disabled={resending}
-              className="block mt-1.5 font-medium text-[var(--color-primary)] hover:underline disabled:opacity-60"
-            >
-              {resending ? "Enviando..." : "Reenviar correo de confirmacion"}
-            </button>
-          )}
-          {resendMsg && <p className="mt-1.5 text-slate-600">{resendMsg}</p>}
         </div>
       )}
 

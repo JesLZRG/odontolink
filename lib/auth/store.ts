@@ -132,7 +132,9 @@ export async function createUser(data: NuevoUsuario): Promise<UsuarioRecord | nu
       password_hash: data.passwordHash,
       telefono: data.telefono ?? null,
       ciudad: data.ciudad ?? null,
-      email_verificado: false,
+      // Sin dominio propio verificado en Resend no podemos garantizar la entrega
+      // del correo de confirmacion, asi que las cuentas quedan activas de inmediato.
+      email_verificado: true,
       session_version: 0,
     })
     .select()

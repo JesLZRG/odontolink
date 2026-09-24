@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Building2, Eye, EyeOff, Lock, Mail, MailCheck, MapPin, Phone, User } from "lucide-react"
+import { Building2, Eye, EyeOff, Lock, Mail, MapPin, Phone, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { passwordSchema } from "@/lib/auth/schemas"
@@ -38,8 +39,7 @@ interface RegisterFormProps {
 export function RegisterForm({ role }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
-  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null)
-  const [resendMsg, setResendMsg] = useState<string | null>(null)
+  const router = useRouter()
 
   const {
     register,
@@ -71,43 +71,11 @@ export function RegisterForm({ role }: RegisterFormProps) {
         setServerError(json.message ?? "Error al registrar")
         return
       }
-      setRegisteredEmail(json.data.email)
+      router.replace(json.data.redirectTo)
+      router.refresh()
     } catch {
       setServerError("Error de conexion. Intenta de nuevo.")
     }
-  }
-
-  async function resend() {
-    const res = await fetch("/api/auth/reenviar-verificacion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: registeredEmail }),
-    }).catch(() => null)
-    const json = await res?.json().catch(() => null)
-    setResendMsg(json?.message ?? "Error de conexion. Intenta de nuevo.")
-  }
-
-  if (registeredEmail) {
-    return (
-      <div className="text-center py-4">
-        <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-4">
-          <MailCheck className="h-7 w-7 text-emerald-600" />
-        </div>
-        <h3 className="text-lg font-semibold text-slate-900">Revisa tu correo</h3>
-        <p className="text-sm text-slate-500 mt-2">
-          Enviamos un enlace de confirmacion a{" "}
-          <span className="font-medium text-slate-700">{registeredEmail}</span>. Abrelo para activar tu cuenta y
-          despues inicia sesion.
-        </p>
-        <p className="text-xs text-slate-400 mt-4">
-          No te llego?{" "}
-          <button type="button" onClick={resend} className="text-[var(--color-primary)] font-medium hover:underline">
-            Reenviar correo
-          </button>
-        </p>
-        {resendMsg && <p className="text-xs text-slate-500 mt-2">{resendMsg}</p>}
-      </div>
-    )
   }
 
   return (

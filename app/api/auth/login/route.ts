@@ -28,10 +28,6 @@ export async function POST(request: NextRequest) {
       const tipo = user.rol === "clinica" ? "Clinica" : "Paciente"
       return fail(`Esta cuenta es de tipo ${tipo}. Selecciona "${tipo}" arriba para ingresar.`, 403)
     }
-    if (!user.emailVerificado) {
-      return fail("Debes confirmar tu correo antes de iniciar sesion.", 403, { code: "EMAIL_NO_VERIFICADO" })
-    }
-
     resetRateLimit(limitKey)
     await startSession(user, recordarme ?? false)
 

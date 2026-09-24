@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { fail, sendVerificationEmail, validationFail } from "@/lib/auth/flows"
+import { fail, validationFail } from "@/lib/auth/flows"
 import { hashPassword } from "@/lib/auth/password"
 import { rateLimit } from "@/lib/auth/rate-limit"
 import { registroSchema } from "@/lib/auth/schemas"
-import { createUser } from "@/lib/auth/store"
+import { homeForRole, startSession } from "@/lib/auth/session"
+import { createUser, toPublic } from "@/lib/auth/store"
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,13 +22,13 @@ export async function POST(request: NextRequest) {
       return fail("Ya existe una cuenta con este correo. Inicia sesion o recupera tu contrasena.", 409)
     }
 
-    await sendVerificationEmail(user, request.nextUrl.origin)
+    await startSession(user, true)
 
     return NextResponse.json({
       success: true,
       data: {
-        email: user.email,
-        message: "Cuenta creada. Te enviamos un correo para confirmar tu direccion.",
+        user: toPublic(user),
+        redirectTo: homeForRole(user.rol),
       },
     })
   } catch (error) {
