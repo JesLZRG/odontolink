@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CalendarDays, DollarSign, MessageSquare, Users } from "lucide-react"
+import { CalendarDays, DollarSign, FolderOpen, MessageSquare, UserPlus, Users } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { StatsCard } from "@/components/dashboard/StatsCard"
 import { AppointmentCalendar } from "@/components/dashboard/AppointmentCalendar"
@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
             <div>
               <h1 className="text-white font-semibold text-sm sm:text-base">
-                {greeting}, <span className="gradient-brand-text">{user?.nombre ?? ""}</span> 👋
+                {greeting}, <span className="gradient-brand-text">{user?.nombre ?? ""}</span>
               </h1>
               <p className="text-[var(--color-text-subtle)] text-xs capitalize">
                 {formatDate(now.toISOString())}
@@ -163,16 +163,16 @@ export default function DashboardPage() {
             <p className="text-[var(--color-text-subtle)] text-xs font-semibold uppercase tracking-wider mb-3">Acciones rapidas</p>
             <div className="flex flex-wrap gap-2">
               {[
-                { label: "Nueva cita", icon: "📅" },
-                { label: "Nuevo paciente", icon: "👤" },
-                { label: "Subir expediente", icon: "📁" },
-                { label: "Enviar mensaje", icon: "💬" },
-              ].map(({ label, icon }) => (
+                { label: "Nueva cita", icon: CalendarDays },
+                { label: "Nuevo paciente", icon: UserPlus },
+                { label: "Subir expediente", icon: FolderOpen },
+                { label: "Enviar mensaje", icon: MessageSquare },
+              ].map(({ label, icon: Icon }) => (
                 <button
                   key={label}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-bg-dark)] border border-[var(--color-border-dark)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)]/40 hover:text-white transition-all text-sm"
                 >
-                  <span>{icon}</span>
+                  <Icon className="h-4 w-4" />
                   {label}
                 </button>
               ))}

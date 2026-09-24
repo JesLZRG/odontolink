@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2, Plane } from "lucide-react"
 import type { Cita } from "@/types"
 import { ESPECIALIDAD_LABELS, ESTADO_CITA_LABELS, cn } from "@/lib/utils"
 
@@ -167,8 +167,9 @@ export function CitaModal({ open, cita, defaultDate, doctores, onClose, onSave }
 
           <label className="flex items-center gap-2.5 cursor-pointer group">
             <input {...register("esTurismo")} type="checkbox" className="w-4 h-4 rounded border-[var(--color-border-dark)] accent-[var(--color-primary)]" />
-            <span className="text-sm text-[var(--color-text-muted)] group-hover:text-white transition-colors">
-              ✈️ Paciente de turismo medico (EE.UU. / Canada)
+            <span className="flex items-center gap-1.5 text-sm text-[var(--color-text-muted)] group-hover:text-white transition-colors">
+              <Plane className="h-3.5 w-3.5" />
+              Paciente de turismo medico (EE.UU. / Canada)
             </span>
           </label>
 
