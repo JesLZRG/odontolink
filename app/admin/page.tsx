@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BadgeCheck, Building2, CalendarClock, Loader2, LogOut, ShieldCheck, User, Users } from "lucide-react"
+import { BadgeCheck, Building2, CalendarClock, Loader2, LogOut, Search, ShieldCheck, User, Users } from "lucide-react"
 import { logout, useSession } from "@/components/auth/useSession"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -32,21 +32,44 @@ function formatFechaCorta(iso: string) {
   return new Date(iso).toLocaleDateString("es-MX", { day: "2-digit", month: "short", timeZone: "UTC" })
 }
 
+const ESTADOS_FILTRO_CITAS = ["confirmada", "programada", "en_curso", "cancelada"] as const
+
 function TablaCitas({ citas }: { citas: CitaAdmin[] }) {
+  const [filtroEstado, setFiltroEstado] = useState<string>("todos")
+
+  const citasFiltradas = useMemo(() => {
+    if (filtroEstado === "todos") return citas
+    return citas.filter((c) => c.estado === filtroEstado)
+  }, [citas, filtroEstado])
+
   return (
     <Card variant="light">
-      <CardHeader className="flex flex-row items-center justify-between gap-3 pb-4">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 pb-4 flex-wrap">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-cyan-50 text-[var(--color-primary)] flex items-center justify-center">
             <CalendarClock className="h-4.5 w-4.5" />
           </div>
           <h2 className="text-base font-semibold text-slate-900">Todas las citas del sistema</h2>
         </div>
-        <Badge variant="primary">{citas.length}</Badge>
+        <div className="flex items-center gap-3">
+          <select
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            className="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-600 bg-white focus:outline-none focus:border-[var(--color-primary)]/50 transition-colors"
+          >
+            <option value="todos">Todos los estados</option>
+            {ESTADOS_FILTRO_CITAS.map((estado) => (
+              <option key={estado} value={estado}>{ESTADO_CITA_LABELS[estado] ?? estado}</option>
+            ))}
+          </select>
+          <Badge variant="primary">{citasFiltradas.length}</Badge>
+        </div>
       </CardHeader>
       <CardContent className="pt-0 overflow-x-auto">
-        {citas.length === 0 ? (
-          <p className="text-sm text-slate-400 py-6 text-center">Aun no hay citas agendadas.</p>
+        {citasFiltradas.length === 0 ? (
+          <p className="text-sm text-slate-400 py-6 text-center">
+            {filtroEstado === "todos" ? "Aun no hay citas agendadas." : "No hay citas con ese estado."}
+          </p>
         ) : (
           <table className="w-full">
             <thead>
@@ -60,7 +83,7 @@ function TablaCitas({ citas }: { citas: CitaAdmin[] }) {
               </tr>
             </thead>
             <tbody>
-              {citas.map((c) => (
+              {citasFiltradas.map((c) => (
                 <tr key={c.id} className="border-b border-slate-100 last:border-0">
                   <td className="py-3 pr-4 text-sm font-medium text-slate-900 whitespace-nowrap">{c.clinicaNombre}</td>
                   <td className="py-3 pr-4 min-w-0">
@@ -134,20 +157,43 @@ function TablaUsuarios({ titulo, icon: Icon, items, esClinica, vacio }: {
   esClinica: boolean
   vacio: string
 }) {
+  const [busqueda, setBusqueda] = useState("")
+
+  const itemsFiltrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    if (!q) return items
+    return items.filter(
+      (u) => u.nombre.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+    )
+  }, [items, busqueda])
+
   return (
     <Card variant="light">
-      <CardHeader className="flex flex-row items-center justify-between gap-3 pb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-cyan-50 text-[var(--color-primary)] flex items-center justify-center">
-            <Icon className="h-4.5 w-4.5" />
+      <CardHeader className="flex flex-col gap-3 pb-4">
+        <div className="flex flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-cyan-50 text-[var(--color-primary)] flex items-center justify-center">
+              <Icon className="h-4.5 w-4.5" />
+            </div>
+            <h2 className="text-base font-semibold text-slate-900">{titulo}</h2>
           </div>
-          <h2 className="text-base font-semibold text-slate-900">{titulo}</h2>
+          <Badge variant="primary">{itemsFiltrados.length}</Badge>
         </div>
-        <Badge variant="primary">{items.length}</Badge>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <input
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar por nombre o correo..."
+            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]/50 transition-colors"
+          />
+        </div>
       </CardHeader>
       <CardContent className="pt-0 overflow-x-auto">
-        {items.length === 0 ? (
-          <p className="text-sm text-slate-400 py-6 text-center">{vacio}</p>
+        {itemsFiltrados.length === 0 ? (
+          <p className="text-sm text-slate-400 py-6 text-center">
+            {busqueda ? "Sin resultados para esa busqueda." : vacio}
+          </p>
         ) : (
           <table className="w-full">
             <thead>
@@ -160,7 +206,7 @@ function TablaUsuarios({ titulo, icon: Icon, items, esClinica, vacio }: {
               </tr>
             </thead>
             <tbody>
-              {items.map((u) => (
+              {itemsFiltrados.map((u) => (
                 <FilaUsuario key={u.id} u={u} esClinica={esClinica} />
               ))}
             </tbody>
