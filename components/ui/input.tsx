@@ -23,7 +23,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {icon && (
-            <span className="absolute left-3 text-slate-400 pointer-events-none">
+            <span className="absolute left-3 text-slate-400 dark:text-[var(--color-text-subtle)] pointer-events-none">
               {icon}
             </span>
           )}
@@ -43,7 +43,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {iconRight && (
-            <span className="absolute right-3 text-slate-400">
+            <span className="absolute right-3 text-slate-400 dark:text-[var(--color-text-subtle)]">
               {iconRight}
             </span>
           )}

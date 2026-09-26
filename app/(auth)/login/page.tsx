@@ -24,7 +24,7 @@ function OdontoLinkLogo() {
       </div>
       <div>
         <span className="text-xl font-bold gradient-brand-text">OdontoLink</span>
-        <p className="text-xs text-slate-500 -mt-0.5 leading-none">El enlace para tu sonrisa</p>
+        <p className="text-xs text-slate-500 dark:text-[var(--color-text-subtle)] -mt-0.5 leading-none transition-colors duration-500">El enlace para tu sonrisa</p>
       </div>
     </div>
   )
@@ -141,10 +141,10 @@ function AvisoUrl() {
   if (!aviso) return null
   return (
     <div
-      className={`mb-5 rounded-xl p-3 text-sm border ${
+      className={`mb-5 rounded-xl p-3 text-sm border transition-colors duration-500 ${
         aviso.tipo === "ok"
-          ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-          : "bg-red-50 border-red-200 text-red-600"
+          ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+          : "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400"
       }`}
     >
       {aviso.texto}
@@ -169,7 +169,11 @@ function LoginContent() {
       <BrandPanel />
 
       {/* Form panel */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 overflow-y-auto">
+      <div
+        className={`flex-1 flex flex-col items-center justify-center p-6 sm:p-10 overflow-y-auto transition-colors duration-500 ${
+          role === "clinica" ? "dark bg-[var(--color-bg-dark)]" : "bg-white"
+        }`}
+      >
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden mb-8">
@@ -178,10 +182,10 @@ function LoginContent() {
 
           {/* Header */}
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-[var(--color-text-primary)] transition-colors duration-500">
               {tab === "login" ? "Bienvenido de vuelta" : "Crea tu cuenta"}
             </h2>
-            <p className="text-slate-500 text-sm mt-1">
+            <p className="text-slate-500 dark:text-[var(--color-text-muted)] text-sm mt-1 transition-colors duration-500">
               {tab === "login"
                 ? "Ingresa tus credenciales para continuar"
                 : "Empieza gratis hoy mismo"}
@@ -192,14 +196,14 @@ function LoginContent() {
 
           {/* Role toggle */}
           <div className="mb-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-[var(--color-text-subtle)] mb-2 transition-colors duration-500">
               Accedo como
             </p>
             <RoleToggle role={role} onChange={setRole} />
           </div>
 
           {/* Tab selector */}
-          <div className="flex border-b border-slate-200 mb-6">
+          <div className="flex border-b border-slate-200 dark:border-[var(--color-border-dark)] mb-6 transition-colors duration-500">
             {(["login", "registro"] as AuthTab[]).map((t) => (
               <button
                 key={t}
@@ -207,7 +211,7 @@ function LoginContent() {
                 className={`flex-1 pb-3 text-sm font-medium capitalize transition-all duration-200 border-b-2 -mb-px ${
                   tab === t
                     ? "border-[var(--color-primary)] text-[var(--color-primary)]"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
+                    : "border-transparent text-slate-500 dark:text-[var(--color-text-muted)] hover:text-slate-700 dark:hover:text-[var(--color-text-primary)]"
                 }`}
               >
                 {t === "login" ? "Iniciar sesion" : "Registrarse"}
@@ -234,16 +238,16 @@ function LoginContent() {
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-5">
-            <hr className="flex-1 border-slate-200" />
-            <span className="text-xs text-slate-400">o</span>
-            <hr className="flex-1 border-slate-200" />
+            <hr className="flex-1 border-slate-200 dark:border-[var(--color-border-dark)] transition-colors duration-500" />
+            <span className="text-xs text-slate-400 dark:text-[var(--color-text-subtle)] transition-colors duration-500">o</span>
+            <hr className="flex-1 border-slate-200 dark:border-[var(--color-border-dark)] transition-colors duration-500" />
           </div>
 
           {/* Guest link */}
           <div className="text-center">
             <Link
               href="/directorio"
-              className="text-sm text-[var(--color-primary)] hover:underline font-medium inline-flex items-center gap-1"
+              className="text-sm text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline font-medium inline-flex items-center gap-1"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -253,7 +257,7 @@ function LoginContent() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-xs text-slate-400 mt-8">
+          <p className="text-center text-xs text-slate-400 dark:text-[var(--color-text-subtle)] mt-8 transition-colors duration-500">
             &copy; {new Date().getFullYear()} OdontoLink. Todos los derechos reservados.
           </p>
         </div>

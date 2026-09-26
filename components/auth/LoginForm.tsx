@@ -80,7 +80,7 @@ export function LoginForm({ role }: LoginFormProps) {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="hover:text-slate-600 transition-colors"
+            className="hover:text-slate-600 dark:hover:text-[var(--color-text-primary)] transition-colors"
             aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -91,21 +91,21 @@ export function LoginForm({ role }: LoginFormProps) {
       />
 
       {serverError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-3 text-sm text-red-600 dark:text-red-400">
           {serverError}
         </div>
       )}
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-[var(--color-text-muted)] cursor-pointer select-none">
           <input
             type="checkbox"
-            className="rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+            className="rounded border-slate-300 dark:border-[var(--color-border-dark)] dark:bg-[var(--color-surface-dark-2)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             {...register("recordarme")}
           />
           Recordarme
         </label>
-        <Link href="/recuperar" className="text-sm text-[var(--color-primary)] hover:underline font-medium">
+        <Link href="/recuperar" className="text-sm text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline font-medium">
           Olvide mi contrasena
         </Link>
       </div>
@@ -120,7 +120,7 @@ export function LoginForm({ role }: LoginFormProps) {
         {isSubmitting ? "Iniciando sesion..." : "Iniciar Sesion"}
       </Button>
 
-      <p className="text-xs text-center text-slate-500 bg-cyan-50 border border-cyan-100 rounded-lg p-2.5">
+      <p className="text-xs text-center text-slate-500 dark:text-[var(--color-text-muted)] bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-100 dark:border-cyan-500/20 rounded-lg p-2.5">
         Demo: <span className="font-mono font-medium">{role === "clinica" ? "clinica@demo.com" : "paciente@demo.com"}</span> / <span className="font-mono font-medium">Demo1234!</span>
       </p>
     </form>

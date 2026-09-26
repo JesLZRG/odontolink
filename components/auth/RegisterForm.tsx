@@ -144,7 +144,7 @@ export function RegisterForm({ role }: RegisterFormProps) {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="hover:text-slate-600 transition-colors"
+            className="hover:text-slate-600 dark:hover:text-[var(--color-text-primary)] transition-colors"
             aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -155,15 +155,15 @@ export function RegisterForm({ role }: RegisterFormProps) {
       />
 
       {serverError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-3 text-sm text-red-600 dark:text-red-400">
           {serverError}
         </div>
       )}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-500 dark:text-[var(--color-text-muted)]">
         Al registrarte aceptas nuestros{" "}
-        <a href="#" className="text-[var(--color-primary)] hover:underline">Terminos de servicio</a> y{" "}
-        <a href="#" className="text-[var(--color-primary)] hover:underline">Politica de privacidad</a>.
+        <a href="#" className="text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline">Terminos de servicio</a> y{" "}
+        <a href="#" className="text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline">Politica de privacidad</a>.
       </p>
 
       <Button
