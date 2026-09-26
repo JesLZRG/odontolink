@@ -10,7 +10,8 @@ const SOLO_PACIENTE = ["/mis-citas", "/api/mis-citas"]
 const REQUIERE_SESION = [...SOLO_CLINICA, ...SOLO_ADMIN, ...SOLO_PACIENTE, "/cuenta"]
 const SOLO_INVITADOS = ["/login", "/recuperar", "/restablecer"]
 
-const homeForRole = (rol: string) => (rol === "clinica" ? "/dashboard" : rol === "admin" ? "/admin" : "/directorio")
+const homeForRole = (rol: string) =>
+  rol === "clinica" ? "/dashboard" : rol === "doctor" ? "/dashboard/pacientes" : rol === "admin" ? "/admin" : "/directorio"
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`))
@@ -27,7 +28,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(login)
   }
 
-  if (session && matches(pathname, SOLO_CLINICA) && session.rol !== "clinica") {
+  // Los doctores comparten el panel de la clinica (con menos secciones), asi
+  // que entran por el mismo gate; cada ruta re-valida el permiso fino adentro.
+  if (session && matches(pathname, SOLO_CLINICA) && session.rol !== "clinica" && session.rol !== "doctor") {
     if (isApi) return NextResponse.json({ success: false, message: "Acceso solo para clinicas" }, { status: 403 })
     return NextResponse.redirect(new URL(homeForRole(session.rol), request.url))
   }

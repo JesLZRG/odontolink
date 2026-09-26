@@ -6,12 +6,13 @@ import type { ApiResponse } from "@/types"
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getCurrentUser()
-    if (!user || !user.clinicaId) {
+    if (!user || !user.clinicaId || (user.rol !== "clinica" && user.rol !== "doctor")) {
       return NextResponse.json({ data: null, success: false, message: "No autenticado" }, { status: 401 })
     }
 
     const { id } = await params
-    const paciente = await findPacienteByClinica(user.clinicaId, id)
+    const doctorId = user.rol === "doctor" ? user.doctorId : undefined
+    const paciente = await findPacienteByClinica(user.clinicaId, id, doctorId)
     if (!paciente) {
       return NextResponse.json({ data: null, success: false, message: "Paciente no encontrado" }, { status: 404 })
     }

@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, CalendarDays, Mail, Menu, Phone, Stethoscope, User } from "lucide-react"
+import { ArrowLeft, CalendarDays, ClipboardList, Mail, Menu, Phone, Stethoscope, User } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
+import { Button } from "@/components/ui/button"
 import { useSession } from "@/components/auth/useSession"
 import type { PacienteDetalle } from "@/lib/clinicas/pacientes"
+import type { Expediente } from "@/types"
 import {
   ESPECIALIDAD_LABELS,
   ESTADO_CITA_COLORS,
@@ -17,6 +19,96 @@ import {
   formatTime,
   getInitials,
 } from "@/lib/utils"
+
+function ExpedienteClinico({ pacienteId }: { pacienteId: string }) {
+  const [expediente, setExpediente] = useState<Expediente | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notas, setNotas] = useState("")
+  const [guardando, setGuardando] = useState(false)
+  const [guardado, setGuardado] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/dashboard/pacientes/${pacienteId}/expediente`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) {
+          setExpediente(json.data)
+          setNotas(json.data.notas)
+        }
+      })
+      .finally(() => setLoading(false))
+  }, [pacienteId])
+
+  async function guardar() {
+    setGuardando(true)
+    setGuardado(false)
+    try {
+      const res = await fetch(`/api/dashboard/pacientes/${pacienteId}/expediente`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notas }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setExpediente(json.data)
+        setGuardado(true)
+      }
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  if (loading) {
+    return <div className="h-40 bg-[var(--color-surface-dark)] rounded-2xl border border-[var(--color-border-dark)] animate-pulse" />
+  }
+
+  const huboCambios = notas !== (expediente?.notas ?? "")
+
+  return (
+    <div>
+      <h3 className="text-white font-semibold text-sm mb-3 flex items-center gap-2">
+        <ClipboardList className="h-4 w-4 text-[var(--color-primary-light)]" />
+        Expediente clinico
+      </h3>
+      <div className="bg-[var(--color-surface-dark)] rounded-2xl border border-[var(--color-border-dark)] p-4 flex flex-col gap-3">
+        <textarea
+          value={notas}
+          onChange={(e) => { setNotas(e.target.value); setGuardado(false) }}
+          rows={6}
+          placeholder="Notas clinicas: diagnosticos, tratamientos, alergias, observaciones..."
+          className="w-full rounded-xl border border-[var(--color-border-dark)] bg-[var(--color-surface-dark-2)] text-white placeholder:text-[var(--color-text-subtle)] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200"
+        />
+        <div className="flex items-center justify-between">
+          <p className="text-[var(--color-text-subtle)] text-xs">
+            {expediente?.actualizadoEn
+              ? `Ultima actualizacion: ${formatDate(expediente.actualizadoEn)} por ${expediente.actualizadoPorNombre ?? "—"}`
+              : "Sin registros todavia"}
+            {guardado && <span className="text-emerald-400 ml-2">Guardado</span>}
+          </p>
+          <Button size="sm" onClick={guardar} disabled={!huboCambios} loading={guardando}>
+            Guardar
+          </Button>
+        </div>
+      </div>
+
+      {expediente && expediente.historial.length > 0 && (
+        <div className="mt-4">
+          <p className="text-[var(--color-text-subtle)] text-xs uppercase tracking-wide font-semibold mb-2">
+            Historial de cambios
+          </p>
+          <div className="flex flex-col gap-2">
+            {expediente.historial.map((h) => (
+              <div key={h.id} className="p-3 bg-[var(--color-surface-dark)] rounded-xl border border-[var(--color-border-dark)]">
+                <p className="text-white text-xs font-medium">{h.doctorNombre}</p>
+                <p className="text-[var(--color-text-subtle)] text-xs mt-0.5">{formatDate(h.creadoEn)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function PacienteDetallePage() {
   const params = useParams<{ id: string }>()
@@ -188,6 +280,9 @@ export default function PacienteDetallePage() {
                   ))}
                 </div>
               </div>
+
+              {/* Expediente clinico */}
+              <ExpedienteClinico pacienteId={paciente.id} />
             </div>
           )}
         </main>

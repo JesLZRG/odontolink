@@ -37,12 +37,12 @@ export function decodePacienteId(id: string): string {
   return Buffer.from(id, "base64url").toString("utf8")
 }
 
-async function citasDeClinica(clinicaId: string): Promise<Cita[]> {
-  const { data, error } = await supabaseAdmin()
-    .from("citas")
-    .select("*")
-    .eq("clinica_id", clinicaId)
-    .order("fecha", { ascending: false })
+// doctorId opcional: cuando se pasa (cuentas de rol "doctor"), solo se ven las
+// citas asignadas a ese doctor, no todas las de la clinica.
+async function citasDeClinica(clinicaId: string, doctorId?: string): Promise<Cita[]> {
+  let query = supabaseAdmin().from("citas").select("*").eq("clinica_id", clinicaId)
+  if (doctorId) query = query.eq("doctor_id", doctorId)
+  const { data, error } = await query.order("fecha", { ascending: false })
   if (error) throw error
   return (data as Parameters<typeof fromCitaRow>[0][]).map(fromCitaRow)
 }
@@ -68,8 +68,8 @@ function proximaCitaDe(citas: Cita[]): Cita | undefined {
     .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())[0]
 }
 
-export async function listPacientesByClinica(clinicaId: string): Promise<PacienteResumen[]> {
-  const citas = await citasDeClinica(clinicaId)
+export async function listPacientesByClinica(clinicaId: string, doctorId?: string): Promise<PacienteResumen[]> {
+  const citas = await citasDeClinica(clinicaId, doctorId)
 
   const grupos = new Map<string, Cita[]>()
   for (const cita of citas) {
@@ -104,7 +104,11 @@ export async function listPacientesByClinica(clinicaId: string): Promise<Pacient
   return resumenes.sort((a, b) => new Date(b.ultimaCita).getTime() - new Date(a.ultimaCita).getTime())
 }
 
-export async function findPacienteByClinica(clinicaId: string, id: string): Promise<PacienteDetalle | null> {
+export async function findPacienteByClinica(
+  clinicaId: string,
+  id: string,
+  doctorId?: string
+): Promise<PacienteDetalle | null> {
   let key: string
   try {
     key = decodePacienteId(id)
@@ -112,7 +116,7 @@ export async function findPacienteByClinica(clinicaId: string, id: string): Prom
     return null
   }
 
-  const citas = await citasDeClinica(clinicaId)
+  const citas = await citasDeClinica(clinicaId, doctorId)
   const propias = citas.filter((c) => pacienteKey(c) === key)
   if (propias.length === 0) return null
 

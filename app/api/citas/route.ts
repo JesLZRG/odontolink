@@ -3,7 +3,7 @@ import { fail, validationFail } from "@/lib/auth/flows"
 import { rateLimit } from "@/lib/auth/rate-limit"
 import { getCurrentUser } from "@/lib/auth/session"
 import { agendarCitaSchema } from "@/lib/clinicas/schemas"
-import { createCita, findDoctorById, listCitasOcupadasDoctorDia } from "@/lib/clinicas/store"
+import { createCita, findClinicaByIdOrSlug, findDoctorById, listCitasOcupadasDoctorDia } from "@/lib/clinicas/store"
 import type { ApiResponse, Cita } from "@/types"
 
 // Endpoint publico: consultar horarios ocupados de un doctor en un dia
@@ -40,6 +40,11 @@ export async function POST(request: NextRequest) {
     const doctor = await findDoctorById(body.doctorId)
     if (!doctor || doctor.clinicaId !== body.clinicaId) {
       return fail("El doctor seleccionado no pertenece a esta clinica", 400)
+    }
+
+    const clinica = await findClinicaByIdOrSlug(body.clinicaId)
+    if (!clinica || clinica.estadoAprobacion !== "aprobada") {
+      return fail("Esta clinica todavia no esta disponible para recibir citas", 403)
     }
 
     // body.fecha llega sin zona horaria (ej. "2026-09-25T09:00:00"). Postgres la

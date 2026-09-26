@@ -3,7 +3,7 @@
 // i18n-ready: all UI strings go through translation keys
 // ============================================================
 
-export type UserRole = "paciente" | "clinica" | "admin"
+export type UserRole = "paciente" | "clinica" | "admin" | "doctor"
 
 // Datos publicos de una cuenta (nunca incluye el hash de la contrasena)
 export interface Usuario {
@@ -14,6 +14,8 @@ export interface Usuario {
   telefono?: string
   ciudad?: string
   clinicaId?: string
+  doctorId?: string
+  activo: boolean
   emailVerificado: boolean
   creadoEn: string
 }
@@ -35,10 +37,13 @@ export interface Clinica {
   especialidades: Especialidad[]
   aseguradoras: Aseguradora[]
   verificada: boolean
+  estadoAprobacion: EstadoAprobacionClinica
   planSuscripcion: "basico" | "profesional" | "premium"
   horario: HorarioSemana
   coordenadas: { lat: number; lng: number }
 }
+
+export type EstadoAprobacionClinica = "pendiente" | "aprobada" | "rechazada"
 
 export type Idioma = "es" | "en"
 
@@ -147,6 +152,25 @@ export interface FiltrosDirectorio {
   aseguradoras: Aseguradora[]
   soloVerificadas: boolean
   ratingMinimo: number
+}
+
+export interface ExpedienteHistorialEntrada {
+  id: string
+  doctorId: string
+  doctorNombre: string
+  notasAnteriores: string
+  notasNuevas: string
+  creadoEn: string
+}
+
+export interface Expediente {
+  id: string
+  clinicaId: string
+  pacienteId: string
+  notas: string
+  actualizadoEn: string
+  actualizadoPorNombre?: string
+  historial: ExpedienteHistorialEntrada[]
 }
 
 export interface ApiResponse<T> {

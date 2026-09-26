@@ -25,6 +25,8 @@ interface UsuarioRow {
   telefono: string | null
   ciudad: string | null
   clinica_id: string | null
+  doctor_id: string | null
+  activo: boolean
   email_verificado: boolean
   creado_en: string
   password_hash: string
@@ -40,6 +42,8 @@ function fromRow(row: UsuarioRow): UsuarioRecord {
     telefono: row.telefono ?? undefined,
     ciudad: row.ciudad ?? undefined,
     clinicaId: row.clinica_id ?? undefined,
+    doctorId: row.doctor_id ?? undefined,
+    activo: row.activo,
     emailVerificado: row.email_verificado,
     creadoEn: row.creado_en,
     passwordHash: row.password_hash,
@@ -119,6 +123,8 @@ export interface NuevoUsuario {
   passwordHash: string
   telefono?: string
   ciudad?: string
+  clinicaId?: string
+  doctorId?: string
 }
 
 export async function createUser(data: NuevoUsuario): Promise<UsuarioRecord | null> {
@@ -132,9 +138,12 @@ export async function createUser(data: NuevoUsuario): Promise<UsuarioRecord | nu
       password_hash: data.passwordHash,
       telefono: data.telefono ?? null,
       ciudad: data.ciudad ?? null,
+      clinica_id: data.clinicaId ?? null,
+      doctor_id: data.doctorId ?? null,
       // Sin dominio propio verificado en Resend no podemos garantizar la entrega
       // del correo de confirmacion, asi que las cuentas quedan activas de inmediato.
       email_verificado: true,
+      activo: true,
       session_version: 0,
     })
     .select()
@@ -156,6 +165,8 @@ export async function updateUser(
   if (changes.telefono !== undefined) patch.telefono = changes.telefono ?? null
   if (changes.ciudad !== undefined) patch.ciudad = changes.ciudad ?? null
   if (changes.clinicaId !== undefined) patch.clinica_id = changes.clinicaId ?? null
+  if (changes.doctorId !== undefined) patch.doctor_id = changes.doctorId ?? null
+  if (changes.activo !== undefined) patch.activo = changes.activo
   if (changes.emailVerificado !== undefined) patch.email_verificado = changes.emailVerificado
   if (changes.passwordHash !== undefined) patch.password_hash = changes.passwordHash
   if (changes.sessionVersion !== undefined) patch.session_version = changes.sessionVersion

@@ -4,7 +4,8 @@ import { hashPassword } from "@/lib/auth/password"
 import { rateLimit } from "@/lib/auth/rate-limit"
 import { registroSchema } from "@/lib/auth/schemas"
 import { homeForRole, startSession } from "@/lib/auth/session"
-import { createUser, toPublic } from "@/lib/auth/store"
+import { createUser, findUserByEmail, normalizeEmail, toPublic } from "@/lib/auth/store"
+import { createClinica } from "@/lib/clinicas/store"
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,9 +16,30 @@ export async function POST(request: NextRequest) {
 
     const parsed = registroSchema.safeParse(await request.json())
     if (!parsed.success) return validationFail(parsed.error)
-    const { password, ...datos } = parsed.data
+    const { password, direccion, descripcion, imagen, ...datos } = parsed.data
 
-    const user = await createUser({ ...datos, passwordHash: await hashPassword(password) })
+    if (await findUserByEmail(datos.email)) {
+      return fail("Ya existe una cuenta con este correo. Inicia sesion o recupera tu contrasena.", 409)
+    }
+
+    // Las clinicas nacen ligadas a un registro propio en public.clinicas, en
+    // estado "pendiente": no aparecen en el directorio ni pueden recibir citas
+    // hasta que un admin las apruebe desde /admin.
+    let clinicaId: string | undefined
+    if (datos.rol === "clinica") {
+      const clinica = await createClinica({
+        nombre: datos.nombre,
+        ciudad: datos.ciudad!,
+        telefono: datos.telefono,
+        email: normalizeEmail(datos.email),
+        direccion: direccion!,
+        descripcion: descripcion!,
+        imagen: imagen!,
+      })
+      clinicaId = clinica.id
+    }
+
+    const user = await createUser({ ...datos, clinicaId, passwordHash: await hashPassword(password) })
     if (!user) {
       return fail("Ya existe una cuenta con este correo. Inicia sesion o recupera tu contrasena.", 409)
     }

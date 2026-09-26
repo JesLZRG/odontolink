@@ -18,13 +18,31 @@ export const loginSchema = z.object({
   recordarme: z.boolean().optional(),
 })
 
-export const registroSchema = z.object({
-  nombre: z.string().trim().min(2, "Ingresa tu nombre completo").max(120),
+export const registroSchema = z
+  .object({
+    nombre: z.string().trim().min(2, "Ingresa tu nombre completo").max(120),
+    email: emailSchema,
+    password: passwordSchema,
+    telefono: z.string().trim().min(10, "Telefono invalido").max(20),
+    ciudad: z.string().trim().max(80).optional(),
+    rol: z.enum(["paciente", "clinica"]),
+    direccion: z.string().trim().max(200).optional(),
+    descripcion: z.string().trim().max(600).optional(),
+    imagen: z.string().trim().url("Ingresa una URL de imagen valida").max(500).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.rol !== "clinica") return
+    if (!data.ciudad) ctx.addIssue({ code: "custom", path: ["ciudad"], message: "Ingresa la ciudad" })
+    if (!data.direccion) ctx.addIssue({ code: "custom", path: ["direccion"], message: "Ingresa la direccion" })
+    if (!data.descripcion) ctx.addIssue({ code: "custom", path: ["descripcion"], message: "Describe brevemente tu clinica" })
+    if (!data.imagen) ctx.addIssue({ code: "custom", path: ["imagen"], message: "Ingresa la URL de una imagen" })
+  })
+
+export const crearDoctorSchema = z.object({
+  nombre: z.string().trim().min(2, "Ingresa el nombre completo").max(120),
   email: emailSchema,
   password: passwordSchema,
-  telefono: z.string().trim().min(10, "Telefono invalido").max(20),
-  ciudad: z.string().trim().max(80).optional(),
-  rol: z.enum(["paciente", "clinica"]),
+  especialidad: z.string().trim().min(2, "Ingresa la especialidad").max(60),
 })
 
 export const perfilSchema = z.object({

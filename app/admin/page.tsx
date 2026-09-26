@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BadgeCheck, Building2, CalendarClock, Loader2, LogOut, Search, ShieldCheck, User, Users } from "lucide-react"
+import { BadgeCheck, Building2, CalendarClock, Check, Clock, Loader2, LogOut, Search, ShieldCheck, User, Users, X } from "lucide-react"
 import { logout, useSession } from "@/components/auth/useSession"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ESTADO_CITA_LABELS, formatTime, getInitials } from "@/lib/utils"
-import type { Cita, Usuario } from "@/types"
+import type { Cita, Clinica, Usuario } from "@/types"
 
 interface Listas {
   clinicas: Usuario[]
@@ -110,6 +111,72 @@ function TablaCitas({ citas }: { citas: CitaAdmin[] }) {
               ))}
             </tbody>
           </table>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function ClinicasPendientes({ clinicas, onResuelta }: { clinicas: Clinica[]; onResuelta: (id: string) => void }) {
+  const [procesando, setProcesando] = useState<string | null>(null)
+
+  async function resolver(id: string, estadoAprobacion: "aprobada" | "rechazada") {
+    setProcesando(id)
+    try {
+      const res = await fetch(`/api/admin/clinicas/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estadoAprobacion }),
+      })
+      const json = await res.json()
+      if (json.success) onResuelta(id)
+    } finally {
+      setProcesando(null)
+    }
+  }
+
+  return (
+    <Card variant="light">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 pb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <Clock className="h-4.5 w-4.5" />
+          </div>
+          <h2 className="text-base font-semibold text-slate-900">Clinicas pendientes de aprobacion</h2>
+        </div>
+        <Badge variant="primary">{clinicas.length}</Badge>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {clinicas.length === 0 ? (
+          <p className="text-sm text-slate-400 py-6 text-center">No hay clinicas esperando aprobacion.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {clinicas.map((c) => (
+              <div key={c.id} className="flex items-center gap-4 p-3 border border-slate-200 rounded-xl">
+                <div className="w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {getInitials(c.nombre)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-900 truncate">{c.nombre}</p>
+                  <p className="text-xs text-slate-500 truncate">{c.email} &middot; {c.ciudad}</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => resolver(c.id, "rechazada")}
+                    disabled={procesando === c.id}
+                    className="!border-red-300 !text-red-600 hover:!bg-red-50"
+                  >
+                    <X className="h-3.5 w-3.5" /> Rechazar
+                  </Button>
+                  <Button size="sm" onClick={() => resolver(c.id, "aprobada")} disabled={procesando === c.id}>
+                    <Check className="h-3.5 w-3.5" /> Aprobar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </CardContent>
     </Card>
@@ -224,6 +291,8 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null)
   const [citas, setCitas] = useState<CitaAdmin[] | null>(null)
   const [loadingCitas, setLoadingCitas] = useState(true)
+  const [pendientes, setPendientes] = useState<Clinica[]>([])
+  const [loadingPendientes, setLoadingPendientes] = useState(true)
 
   useEffect(() => {
     document.title = "Panel de administrador | OdontoLink"
@@ -245,6 +314,13 @@ export default function AdminPage() {
       .then((r) => r.json())
       .then((json) => { if (json.success) setCitas(json.data) })
       .finally(() => setLoadingCitas(false))
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/admin/clinicas")
+      .then((r) => r.json())
+      .then((json) => { if (json.success) setPendientes(json.data) })
+      .finally(() => setLoadingPendientes(false))
   }, [])
 
   if (loadingUser || !user) {
@@ -291,6 +367,15 @@ export default function AdminPage() {
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">{error}</div>
+        )}
+
+        {loadingPendientes ? (
+          <div className="h-48 bg-white border border-slate-200 rounded-2xl animate-pulse" />
+        ) : (
+          <ClinicasPendientes
+            clinicas={pendientes}
+            onResuelta={(id) => setPendientes((prev) => prev.filter((c) => c.id !== id))}
+          />
         )}
 
         {loading ? (

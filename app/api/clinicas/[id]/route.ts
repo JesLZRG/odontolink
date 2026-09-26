@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params
     const clinica = await findClinicaByIdOrSlug(id)
-    if (!clinica) {
+    if (!clinica || clinica.estadoAprobacion !== "aprobada") {
       return NextResponse.json(
         { data: null, success: false, message: "Clinica no encontrada" },
         { status: 404 }

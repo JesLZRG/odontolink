@@ -22,9 +22,12 @@ export async function POST(request: NextRequest) {
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return fail("Correo o contrasena incorrectos", 401)
     }
-    // El rol "admin" no aparece en el selector publico (paciente/clinica), asi que
-    // esas cuentas pueden iniciar sesion sin importar cual pestana este seleccionada.
-    if (user.rol !== rol && user.rol !== "admin") {
+    if (!user.activo) {
+      return fail("Esta cuenta esta desactivada. Contacta a tu clinica o a soporte.", 403)
+    }
+    // Los roles "admin" y "doctor" no aparecen en el selector publico (paciente/clinica),
+    // asi que esas cuentas pueden iniciar sesion sin importar cual pestana este seleccionada.
+    if (user.rol !== rol && user.rol !== "admin" && user.rol !== "doctor") {
       const tipo = user.rol === "clinica" ? "Clinica" : "Paciente"
       return fail(`Esta cuenta es de tipo ${tipo}. Selecciona "${tipo}" arriba para ingresar.`, 403)
     }

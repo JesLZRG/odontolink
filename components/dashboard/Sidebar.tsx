@@ -3,20 +3,27 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard, CalendarDays, Users, FolderOpen,
+  LayoutDashboard, CalendarDays, Users, UserCog,
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
 } from "lucide-react"
 import { cn, getInitials } from "@/lib/utils"
 import { logout, useSession } from "@/components/auth/useSession"
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
 
-const NAV_ITEMS = [
+const NAV_ITEMS_CLINICA = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Inicio" },
   { href: "/dashboard/agenda", icon: CalendarDays, label: "Agenda" },
   { href: "/dashboard/pacientes", icon: Users, label: "Pacientes" },
-  { href: "/dashboard/expedientes", icon: FolderOpen, label: "Expedientes" },
+  { href: "/dashboard/equipo", icon: UserCog, label: "Equipo" },
   { href: "/dashboard/mensajes", icon: MessageSquare, label: "Mensajes", badge: 5 },
   { href: "/dashboard/configuracion", icon: Settings, label: "Configuracion" },
+]
+
+// Un doctor solo ve sus pacientes/expedientes asignados: nada de
+// estadisticas, equipo o configuracion de toda la clinica.
+const NAV_ITEMS_DOCTOR = [
+  { href: "/dashboard/pacientes", icon: Users, label: "Pacientes" },
+  { href: "/dashboard/mensajes", icon: MessageSquare, label: "Mensajes", badge: 5 },
 ]
 
 import Image from "next/image"
@@ -29,6 +36,7 @@ interface SidebarProps {
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname()
   const { user } = useSession()
+  const navItems = user?.rol === "doctor" ? NAV_ITEMS_DOCTOR : NAV_ITEMS_CLINICA
 
   return (
     <aside
@@ -53,7 +61,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2">
         <div className="flex flex-col gap-1">
-          {NAV_ITEMS.map(({ href, icon: Icon, label, badge }) => {
+          {navItems.map(({ href, icon: Icon, label, badge }) => {
             const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href))
             return (
               <Link

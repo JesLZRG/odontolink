@@ -35,12 +35,15 @@ export async function getCurrentUser(): Promise<UsuarioRecord | null> {
   const payload = verifySessionToken(cookieStore.get(SESSION_COOKIE)?.value)
   if (!payload) return null
   const user = await findUserById(payload.uid)
-  if (!user || user.sessionVersion !== payload.sv) return null
+  if (!user || user.sessionVersion !== payload.sv || !user.activo) return null
   return user
 }
 
 export function homeForRole(rol: UserRole) {
   if (rol === "clinica") return "/dashboard"
+  // Los doctores no ven el panel general de la clinica (estadisticas, equipo,
+  // etc.), solo sus pacientes y expedientes asignados.
+  if (rol === "doctor") return "/dashboard/pacientes"
   if (rol === "admin") return "/admin"
   return "/directorio"
 }

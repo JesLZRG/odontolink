@@ -24,12 +24,18 @@ const pacienteSchema = baseSchema.extend({
 const clinicaSchema = baseSchema.extend({
   nombreClinica: z.string().min(3, "Ingresa el nombre de la clinica"),
   ciudad: z.string().min(2, "Ingresa la ciudad"),
+  direccion: z.string().min(5, "Ingresa la direccion"),
+  descripcion: z.string().min(20, "Describe brevemente tu clinica (min. 20 caracteres)"),
+  imagen: z.string().url("Ingresa una URL de imagen valida"),
 })
 
 type RegisterValues = z.infer<typeof baseSchema> & {
   nombre?: string
   nombreClinica?: string
   ciudad?: string
+  direccion?: string
+  descripcion?: string
+  imagen?: string
 }
 
 interface RegisterFormProps {
@@ -58,6 +64,9 @@ export function RegisterForm({ role }: RegisterFormProps) {
         password: data.password,
         telefono: data.telefono,
         ciudad: role === "clinica" ? data.ciudad : undefined,
+        direccion: role === "clinica" ? data.direccion : undefined,
+        descripcion: role === "clinica" ? data.descripcion : undefined,
+        imagen: role === "clinica" ? data.imagen : undefined,
         rol: role,
       }
 
@@ -110,6 +119,35 @@ export function RegisterForm({ role }: RegisterFormProps) {
             icon={<MapPin className="h-4 w-4" />}
             error={errors.ciudad?.message}
             {...register("ciudad")}
+          />
+          <Input
+            label="Direccion"
+            type="text"
+            placeholder="Av. Revolucion 123, Zona Centro"
+            icon={<MapPin className="h-4 w-4" />}
+            error={errors.direccion?.message}
+            {...register("direccion")}
+          />
+          <div className="flex flex-col gap-1.5 w-full">
+            <label htmlFor="descripcion" className="text-sm font-medium text-slate-700">Descripcion breve</label>
+            <textarea
+              id="descripcion"
+              rows={3}
+              placeholder="Cuentanos que ofrece tu clinica, especialidades, experiencia..."
+              className="w-full rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200"
+              {...register("descripcion")}
+            />
+            {errors.descripcion?.message && (
+              <p className="text-xs text-red-500">{errors.descripcion.message}</p>
+            )}
+          </div>
+          <Input
+            label="URL de imagen"
+            type="text"
+            placeholder="https://..."
+            icon={<Building2 className="h-4 w-4" />}
+            error={errors.imagen?.message}
+            {...register("imagen")}
           />
         </>
       )}

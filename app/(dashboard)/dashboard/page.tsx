@@ -1,26 +1,71 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CalendarDays, DollarSign, FolderOpen, MessageSquare, UserPlus, Users } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { CalendarDays, Clock, DollarSign, FolderOpen, MessageSquare, ShieldAlert, UserPlus, Users } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { StatsCard } from "@/components/dashboard/StatsCard"
 import { AppointmentCalendar } from "@/components/dashboard/AppointmentCalendar"
 import { TodayAppointments } from "@/components/dashboard/TodayAppointments"
-import type { Cita, DashboardStats } from "@/types"
+import type { Cita, Clinica, DashboardStats } from "@/types"
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils"
 import { useSession } from "@/components/auth/useSession"
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
 import Link from "next/link"
 import { Menu } from "lucide-react"
 
+function AvisoAprobacion({ estado }: { estado: Clinica["estadoAprobacion"] }) {
+  if (estado === "aprobada") return null
+  if (estado === "rechazada") {
+    return (
+      <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+        <ShieldAlert className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-red-400 font-medium text-sm">Tu registro fue rechazado</p>
+          <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
+            Tu clinica no aparece en el directorio ni puede recibir citas. Contacta a soporte si crees que esto es un error.
+          </p>
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+      <Clock className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+      <div>
+        <p className="text-amber-400 font-medium text-sm">Tu clinica esta pendiente de aprobacion</p>
+        <p className="text-[var(--color-text-muted)] text-sm mt-0.5">
+          Un administrador revisara tu registro pronto. Mientras tanto, tu clinica no aparece en el directorio publico ni puede recibir citas.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
+  const router = useRouter()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [citas, setCitas] = useState<Cita[]>([])
   const [loadingStats, setLoadingStats] = useState(true)
   const [loadingCitas, setLoadingCitas] = useState(true)
-  const { user } = useSession()
+  const [clinica, setClinica] = useState<Clinica | null>(null)
+  const { user, loading: loadingUser } = useSession()
+
+  // Este panel (estadisticas de toda la clinica) no es para doctores: ellos
+  // solo ven sus pacientes/expedientes asignados.
+  useEffect(() => {
+    if (!loadingUser && user && user.rol === "doctor") {
+      router.replace("/dashboard/pacientes")
+    }
+  }, [loadingUser, user, router])
+
+  useEffect(() => {
+    fetch("/api/dashboard/clinica")
+      .then((r) => r.json())
+      .then((j) => { if (j.success) setClinica(j.data) })
+  }, [])
 
   const now = new Date()
   const greeting = now.getHours() < 12 ? "Buenos dias" : now.getHours() < 18 ? "Buenas tardes" : "Buenas noches"
@@ -131,6 +176,8 @@ export default function DashboardPage() {
 
         {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {clinica && <AvisoAprobacion estado={clinica.estadoAprobacion} />}
+
           {/* Stats Cards */}
           <section>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
