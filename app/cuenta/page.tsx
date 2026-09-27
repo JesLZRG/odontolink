@@ -21,7 +21,9 @@ function AvisoBox({ aviso }: { aviso: Aviso }) {
   return (
     <div
       className={`rounded-xl p-3 text-sm border ${
-        aviso.ok ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-600"
+        aviso.ok
+          ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-400"
+          : "bg-red-50 border-red-200 text-red-600 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400"
       }`}
     >
       {aviso.texto}
@@ -31,9 +33,9 @@ function AvisoBox({ aviso }: { aviso: Aviso }) {
 
 function Seccion({ titulo, descripcion, children }: { titulo: string; descripcion: string; children: React.ReactNode }) {
   return (
-    <section className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
-      <h2 className="text-base font-semibold text-slate-900">{titulo}</h2>
-      <p className="text-sm text-slate-500 mt-0.5 mb-5">{descripcion}</p>
+    <section className="bg-white dark:bg-[var(--color-surface-dark)] border border-slate-200 dark:border-[var(--color-border-dark)] rounded-2xl p-5 sm:p-6 transition-colors duration-300">
+      <h2 className="text-base font-semibold text-slate-900 dark:text-[var(--color-text-primary)]">{titulo}</h2>
+      <p className="text-sm text-slate-500 dark:text-[var(--color-text-muted)] mt-0.5 mb-5">{descripcion}</p>
       {children}
     </section>
   )
@@ -149,7 +151,7 @@ function PasswordForm() {
         {...register("confirmar")}
       />
       <div className="sm:col-span-2 flex flex-col gap-3">
-        <p className="text-xs text-slate-500">Al cambiarla se cerrara la sesion en tus otros dispositivos.</p>
+        <p className="text-xs text-slate-500 dark:text-[var(--color-text-muted)]">Al cambiarla se cerrara la sesion en tus otros dispositivos.</p>
         <AvisoBox aviso={aviso} />
         <Button type="submit" loading={isSubmitting} className="self-start">
           Cambiar contrasena
@@ -185,7 +187,7 @@ function EliminarCuenta() {
         type="button"
         variant="outline"
         onClick={() => setAbierto(true)}
-        className="border-red-300 text-red-600 hover:bg-red-50"
+        className="border-red-300 text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:text-red-400 dark:hover:bg-red-500/10"
       >
         <Trash2 className="h-4 w-4" />
         Eliminar mi cuenta
@@ -217,7 +219,7 @@ function EliminarCuenta() {
           type="button"
           variant="outline"
           onClick={() => { setAbierto(false); setPassword(""); setError(null) }}
-          className="border-slate-300 text-slate-600 hover:bg-slate-50"
+          className="border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-[var(--color-border-dark)] dark:text-[var(--color-text-muted)] dark:hover:bg-white/5"
         >
           Cancelar
         </Button>
@@ -244,11 +246,16 @@ export default function CuentaPage() {
     )
   }
 
-  const inicio = user.rol === "clinica" ? "/dashboard" : "/directorio"
+  // Las cuentas de clinica y doctor comparten el panel oscuro (/dashboard,
+  // /agenda, /pacientes...); mantener /cuenta en el mismo tema evita que se
+  // sienta como una app distinta al saltar aqui. Paciente se queda claro.
+  const esPanelOscuro = user.rol === "clinica" || user.rol === "doctor"
+  const inicio = esPanelOscuro ? "/dashboard" : "/directorio"
+  const ROL_LABEL: Record<string, string> = { clinica: "clinica", doctor: "doctor", paciente: "paciente" }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
+    <div className={esPanelOscuro ? "dark min-h-screen bg-[var(--color-bg-dark)] transition-colors duration-300" : "min-h-screen bg-slate-50"}>
+      <header className="bg-white dark:bg-[var(--color-surface-dark)] border-b border-slate-200 dark:border-[var(--color-border-dark)] transition-colors duration-300">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link href={inicio} className="flex items-center gap-2.5">
             <Image src="/logo.png" alt="OdontoLink" width={36} height={36} className="object-contain" />
@@ -257,7 +264,7 @@ export default function CuentaPage() {
           <button
             onClick={() => { setCerrando(true); logout() }}
             disabled={cerrando}
-            className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-red-600 transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-[var(--color-text-muted)] hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />
             Cerrar sesion
@@ -269,10 +276,10 @@ export default function CuentaPage() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <Link
             href={inicio}
-            className="text-sm text-slate-500 hover:text-[var(--color-primary)] inline-flex items-center gap-1.5 transition-colors"
+            className="text-sm text-slate-500 dark:text-[var(--color-text-muted)] hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary-light)] inline-flex items-center gap-1.5 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            {user.rol === "clinica" ? "Volver al panel" : "Volver al directorio"}
+            {esPanelOscuro ? "Volver al panel" : "Volver al directorio"}
           </Link>
           {user.rol === "paciente" && (
             <Link
@@ -291,17 +298,17 @@ export default function CuentaPage() {
             {getInitials(user.nombre)}
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-slate-900 truncate">{user.nombre}</h1>
-            <p className="text-sm text-slate-500 flex items-center gap-1.5 flex-wrap">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white truncate">{user.nombre}</h1>
+            <p className="text-sm text-slate-500 dark:text-[var(--color-text-muted)] flex items-center gap-1.5 flex-wrap">
               <span className="truncate">{user.email}</span>
               {user.emailVerificado && (
-                <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-medium">
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
                   <BadgeCheck className="h-3.5 w-3.5" /> Verificado
                 </span>
               )}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Cuenta de {user.rol === "clinica" ? "clinica" : "paciente"} · Miembro desde{" "}
+            <p className="text-xs text-slate-400 dark:text-[var(--color-text-subtle)] mt-0.5">
+              Cuenta de {ROL_LABEL[user.rol] ?? user.rol} · Miembro desde{" "}
               {new Date(user.creadoEn).toLocaleDateString("es-MX", { month: "long", year: "numeric" })}
             </p>
           </div>
