@@ -22,6 +22,7 @@ export function SearchBar({ value, onChange, placeholder = "Buscar clinica, espe
       {value && (
         <button
           onClick={() => onChange("")}
+          aria-label="Limpiar busqueda"
           className="absolute right-3 p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
         >
           <X className="h-4 w-4" />

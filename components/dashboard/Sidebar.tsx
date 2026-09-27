@@ -121,6 +121,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         {/* Collapse toggle */}
         <button
           onClick={onToggle}
+          aria-label={collapsed ? "Expandir menu" : "Colapsar menu"}
           className={cn(
             "w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[var(--color-text-subtle)] hover:text-white hover:bg-white/5 transition-all text-sm",
             collapsed ? "" : ""

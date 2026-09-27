@@ -21,7 +21,9 @@
 
   --color-text-primary: #F1F5F9;
   --color-text-muted: #94A3B8;
-  --color-text-subtle: #64748B;
+  /* #7D8BA3 en vez de #64748B: el original daba ~3.75:1 sobre --color-bg-dark,
+     por debajo del minimo AA (4.5:1) para texto normal. Este valor da ~5.2:1. */
+  --color-text-subtle: #7D8BA3;
 }
 
 @layer base {

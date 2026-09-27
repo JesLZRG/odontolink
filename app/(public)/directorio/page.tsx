@@ -6,6 +6,7 @@ import { SearchBar } from "@/components/directory/SearchBar"
 import { FilterSidebar } from "@/components/directory/FilterSidebar"
 import { ClinicCard } from "@/components/directory/ClinicCard"
 import { AccountLink } from "@/components/directory/AccountLink"
+import { Footer } from "@/components/ui/Footer"
 import type { Clinica, FiltrosDirectorio } from "@/types"
 import { Loader2, Search, SlidersHorizontal, X } from "lucide-react"
 
@@ -130,7 +131,7 @@ export default function DirectorioPage() {
           <div className="absolute right-0 top-0 bottom-0 w-80 bg-white overflow-y-auto p-4 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-slate-800">Filtros</h2>
-              <button onClick={() => setMobileFiltersOpen(false)} className="p-2 rounded-lg hover:bg-slate-100">
+              <button onClick={() => setMobileFiltersOpen(false)} aria-label="Cerrar filtros" className="p-2 rounded-lg hover:bg-slate-100">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -197,6 +198,8 @@ export default function DirectorioPage() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }

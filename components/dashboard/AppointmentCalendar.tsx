@@ -72,6 +72,7 @@ export function AppointmentCalendar({ citas }: AppointmentCalendarProps) {
         <div className="flex items-center gap-1">
           <button
             onClick={prevMonth}
+            aria-label="Mes anterior"
             className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -84,6 +85,7 @@ export function AppointmentCalendar({ citas }: AppointmentCalendarProps) {
           </button>
           <button
             onClick={nextMonth}
+            aria-label="Mes siguiente"
             className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors"
           >
             <ChevronRight className="h-4 w-4" />

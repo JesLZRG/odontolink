@@ -68,13 +68,13 @@ export function AgendaCalendar({
           <h2 className="text-white font-semibold">{MONTHS[currentMonth]} {currentYear}</h2>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={onPrevMonth} className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
+          <button onClick={onPrevMonth} aria-label="Mes anterior" className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button onClick={onGoToToday} className="px-3 h-8 text-xs rounded-lg border border-[var(--color-primary)]/40 text-[var(--color-primary-light)] hover:bg-[var(--color-primary)]/10 transition-colors font-medium">
             Hoy
           </button>
-          <button onClick={onNextMonth} className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
+          <button onClick={onNextMonth} aria-label="Mes siguiente" className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

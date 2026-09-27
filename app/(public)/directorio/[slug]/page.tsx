@@ -16,6 +16,7 @@ import { AccountLink } from "@/components/directory/AccountLink"
 import { BookingForm } from "@/components/directory/BookingForm"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { Footer } from "@/components/ui/Footer"
 import { findClinicaByIdOrSlug, listDoctoresByClinica } from "@/lib/clinicas/store"
 import { ASEGURADORA_LABELS, ESPECIALIDAD_LABELS, IDIOMA_LABELS, getInitials } from "@/lib/utils"
 import type { HorarioSemana } from "@/types"
@@ -225,6 +226,8 @@ export default async function ClinicaDetallePage({ params }: { params: Promise<{
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }

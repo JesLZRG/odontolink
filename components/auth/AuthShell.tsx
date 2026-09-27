@@ -27,6 +27,12 @@ export function AuthShell({ titulo, subtitulo, children }: AuthShellProps) {
           <ArrowLeft className="h-4 w-4" />
           Volver a iniciar sesion
         </Link>
+
+        <p className="mt-6 text-center text-xs text-slate-400">
+          <Link href="/privacidad" className="hover:underline">Privacidad</Link>
+          {" "}&middot;{" "}
+          <Link href="/terminos" className="hover:underline">Terminos</Link>
+        </p>
       </div>
     </main>
   )

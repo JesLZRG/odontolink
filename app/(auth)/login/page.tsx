@@ -257,9 +257,16 @@ function LoginContent() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-xs text-slate-400 dark:text-[var(--color-text-subtle)] mt-8 transition-colors duration-500">
-            &copy; {new Date().getFullYear()} OdontoLink. Todos los derechos reservados.
-          </p>
+          <div className="text-center mt-8">
+            <p className="text-xs text-slate-400 dark:text-[var(--color-text-subtle)] transition-colors duration-500">
+              &copy; {new Date().getFullYear()} OdontoLink. Proyecto educativo, no es un servicio medico real.
+            </p>
+            <p className="text-xs text-slate-400 dark:text-[var(--color-text-subtle)] mt-1 transition-colors duration-500">
+              <Link href="/privacidad" className="hover:underline">Privacidad</Link>
+              {" "}&middot;{" "}
+              <Link href="/terminos" className="hover:underline">Terminos</Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

@@ -116,7 +116,7 @@ export function CitaModal({ open, cita, defaultDate, doctores, onClose, onSave }
               {isEdit ? `Editando cita de ${cita?.pacienteNombre}` : "Completa los datos de la cita"}
             </p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
+          <button onClick={onClose} aria-label="Cerrar" className="w-8 h-8 flex items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>

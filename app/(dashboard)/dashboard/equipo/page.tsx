@@ -333,7 +333,7 @@ function NuevoDoctorModal({ onClose, onCreated }: { onClose: () => void; onCreat
       <div className="relative w-full max-w-md bg-[var(--color-surface-dark)] border border-[var(--color-border-dark)] rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-semibold text-base">Agregar doctor</h2>
-          <button onClick={onClose} className="text-[var(--color-text-subtle)] hover:text-white transition-colors">
+          <button onClick={onClose} aria-label="Cerrar" className="text-[var(--color-text-subtle)] hover:text-white transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -400,7 +400,7 @@ function ActivarAccesoModal({
       <div className="relative w-full max-w-md bg-[var(--color-surface-dark)] border border-[var(--color-border-dark)] rounded-2xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-semibold text-base">Dar acceso a {doctor.nombre}</h2>
-          <button onClick={onClose} className="text-[var(--color-text-subtle)] hover:text-white transition-colors">
+          <button onClick={onClose} aria-label="Cerrar" className="text-[var(--color-text-subtle)] hover:text-white transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>

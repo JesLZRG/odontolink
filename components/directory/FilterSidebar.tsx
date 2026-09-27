@@ -32,10 +32,17 @@ function CheckItem({
 }) {
   return (
     <label className="flex items-center gap-2.5 cursor-pointer group">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="peer sr-only"
+      />
       <div
-        onClick={onChange}
+        aria-hidden="true"
         className={cn(
-          "w-4 h-4 rounded border flex items-center justify-center transition-all flex-shrink-0 cursor-pointer",
+          "w-4 h-4 rounded border flex items-center justify-center transition-all flex-shrink-0",
+          "peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-primary)] peer-focus-visible:ring-offset-1",
           checked
             ? "bg-[var(--color-primary)] border-[var(--color-primary)]"
             : "border-slate-300 group-hover:border-[var(--color-primary)]"
@@ -48,7 +55,6 @@ function CheckItem({
         )}
       </div>
       <span
-        onClick={onChange}
         className={cn(
           "text-sm transition-colors leading-none",
           checked ? "text-slate-900 font-medium" : "text-slate-600 group-hover:text-slate-900"

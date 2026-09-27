@@ -64,6 +64,7 @@ export function CitaRow({ cita, onEdit, onCancel }: CitaRowProps) {
             <button
               onClick={() => onEdit(cita)}
               className="w-6 h-6 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary-light)] hover:bg-[var(--color-primary)]/10 transition-colors"
+              aria-label={`Editar cita de ${cita.pacienteNombre}`}
               title="Editar cita"
             >
               <Pencil className="h-3 w-3" />
@@ -71,6 +72,7 @@ export function CitaRow({ cita, onEdit, onCancel }: CitaRowProps) {
             <button
               onClick={() => onCancel(cita.id)}
               className="w-6 h-6 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              aria-label={`Cancelar cita de ${cita.pacienteNombre}`}
               title="Cancelar cita"
             >
               <X className="h-3 w-3" />

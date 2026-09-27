@@ -42,7 +42,8 @@ export function NotificationsBell({ dropdownPosition = "bottom" }: Notifications
       <button
         onClick={toggle}
         className="relative p-2 rounded-xl text-[var(--color-text-muted)] hover:text-white hover:bg-white/10 transition-colors"
-        title="Notificaciones"
+        aria-label="Notificaciones"
+        aria-expanded={open}
       >
         <Bell className="h-5 w-5" />
         {citas.length > 0 && (
