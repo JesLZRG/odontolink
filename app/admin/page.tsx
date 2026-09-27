@@ -66,51 +66,80 @@ function TablaCitas({ citas }: { citas: CitaAdmin[] }) {
           <Badge variant="primary">{citasFiltradas.length}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="pt-0 overflow-x-auto">
+      <CardContent className="pt-0">
         {citasFiltradas.length === 0 ? (
           <p className="text-sm text-slate-400 py-6 text-center">
             {filtroEstado === "todos" ? "Aun no hay citas agendadas." : "No hay citas con ese estado."}
           </p>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
-                <th className="pb-2 pr-4 font-semibold">Clinica</th>
-                <th className="pb-2 pr-4 font-semibold">Paciente</th>
-                <th className="pb-2 pr-4 font-semibold">Doctor</th>
-                <th className="pb-2 pr-4 font-semibold">Fecha</th>
-                <th className="pb-2 pr-4 font-semibold">Estado</th>
-                <th className="pb-2 font-semibold">Origen</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile: tarjetas apiladas */}
+            <div className="flex flex-col gap-2 sm:hidden">
               {citasFiltradas.map((c) => (
-                <tr key={c.id} className="border-b border-slate-100 last:border-0">
-                  <td className="py-3 pr-4 text-sm font-medium text-slate-900 whitespace-nowrap">{c.clinicaNombre}</td>
-                  <td className="py-3 pr-4 min-w-0">
-                    <p className="text-sm text-slate-700 truncate">{c.pacienteNombre}</p>
-                    {c.pacienteEmail && <p className="text-xs text-slate-400 truncate">{c.pacienteEmail}</p>}
-                  </td>
-                  <td className="py-3 pr-4 text-sm text-slate-600 whitespace-nowrap">{c.doctorNombre}</td>
-                  <td className="py-3 pr-4 text-sm text-slate-500 whitespace-nowrap">
-                    {formatFechaCorta(c.fecha)}, {formatTime(c.fecha)}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <Badge variant={ESTADO_BADGE[c.estado] ?? "outline"} size="sm">
+                <div key={c.id} className="border border-slate-200 rounded-xl p-3 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-slate-900 truncate">{c.clinicaNombre}</p>
+                    <Badge variant={ESTADO_BADGE[c.estado] ?? "outline"} size="sm" className="flex-shrink-0">
                       {ESTADO_CITA_LABELS[c.estado] ?? c.estado}
                     </Badge>
-                  </td>
-                  <td className="py-3">
+                  </div>
+                  <p className="text-sm text-slate-700 truncate">{c.pacienteNombre}</p>
+                  <p className="text-xs text-slate-500 truncate">Dr(a). {c.doctorNombre}</p>
+                  <div className="flex items-center justify-between gap-2 mt-0.5">
+                    <p className="text-xs text-slate-400">{formatFechaCorta(c.fecha)}, {formatTime(c.fecha)}</p>
                     {c.esDemo ? (
                       <Badge size="sm" className="bg-amber-50 text-amber-600 border border-amber-200">Demo</Badge>
                     ) : (
                       <Badge size="sm" variant="secondary">Real</Badge>
                     )}
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop: tabla */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
+                    <th className="pb-2 pr-4 font-semibold">Clinica</th>
+                    <th className="pb-2 pr-4 font-semibold">Paciente</th>
+                    <th className="pb-2 pr-4 font-semibold">Doctor</th>
+                    <th className="pb-2 pr-4 font-semibold">Fecha</th>
+                    <th className="pb-2 pr-4 font-semibold">Estado</th>
+                    <th className="pb-2 font-semibold">Origen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {citasFiltradas.map((c) => (
+                    <tr key={c.id} className="border-b border-slate-100 last:border-0">
+                      <td className="py-3 pr-4 text-sm font-medium text-slate-900 whitespace-nowrap">{c.clinicaNombre}</td>
+                      <td className="py-3 pr-4 min-w-0">
+                        <p className="text-sm text-slate-700 truncate">{c.pacienteNombre}</p>
+                        {c.pacienteEmail && <p className="text-xs text-slate-400 truncate">{c.pacienteEmail}</p>}
+                      </td>
+                      <td className="py-3 pr-4 text-sm text-slate-600 whitespace-nowrap">{c.doctorNombre}</td>
+                      <td className="py-3 pr-4 text-sm text-slate-500 whitespace-nowrap">
+                        {formatFechaCorta(c.fecha)}, {formatTime(c.fecha)}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Badge variant={ESTADO_BADGE[c.estado] ?? "outline"} size="sm">
+                          {ESTADO_CITA_LABELS[c.estado] ?? c.estado}
+                        </Badge>
+                      </td>
+                      <td className="py-3">
+                        {c.esDemo ? (
+                          <Badge size="sm" className="bg-amber-50 text-amber-600 border border-amber-200">Demo</Badge>
+                        ) : (
+                          <Badge size="sm" variant="secondary">Real</Badge>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
@@ -217,6 +246,31 @@ function FilaUsuario({ u, esClinica }: { u: Usuario; esClinica: boolean }) {
   )
 }
 
+function TarjetaUsuario({ u, esClinica }: { u: Usuario; esClinica: boolean }) {
+  return (
+    <div className="border border-slate-200 rounded-xl p-3 flex items-center gap-3">
+      <div className="w-9 h-9 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        {getInitials(u.nombre)}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium text-slate-900 truncate">{u.nombre}</p>
+        <p className="text-xs text-slate-500 truncate">{u.email}</p>
+        <p className="text-xs text-slate-400 truncate mt-0.5">
+          {u.telefono ?? "Sin telefono"}
+          {esClinica && u.ciudad ? ` · ${u.ciudad}` : ""} · {formatFecha(u.creadoEn)}
+        </p>
+      </div>
+      {u.emailVerificado ? (
+        <Badge variant="secondary" size="sm" className="flex-shrink-0">
+          <BadgeCheck className="h-3 w-3" /> Verificado
+        </Badge>
+      ) : (
+        <Badge variant="outline" size="sm" className="flex-shrink-0">Sin verificar</Badge>
+      )}
+    </div>
+  )
+}
+
 function TablaUsuarios({ titulo, icon: Icon, items, esClinica, vacio }: {
   titulo: string
   icon: typeof Users
@@ -256,28 +310,40 @@ function TablaUsuarios({ titulo, icon: Icon, items, esClinica, vacio }: {
           />
         </div>
       </CardHeader>
-      <CardContent className="pt-0 overflow-x-auto">
+      <CardContent className="pt-0">
         {itemsFiltrados.length === 0 ? (
           <p className="text-sm text-slate-400 py-6 text-center">
             {busqueda ? "Sin resultados para esa busqueda." : vacio}
           </p>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
-                <th className="pb-2 pr-4 font-semibold">Nombre / correo</th>
-                <th className="pb-2 pr-4 font-semibold">Telefono</th>
-                <th className="pb-2 pr-4 font-semibold">{esClinica ? "Ciudad" : ""}</th>
-                <th className="pb-2 pr-4 font-semibold">Estado</th>
-                <th className="pb-2 font-semibold">Registro</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile: tarjetas apiladas */}
+            <div className="flex flex-col gap-2 sm:hidden">
               {itemsFiltrados.map((u) => (
-                <FilaUsuario key={u.id} u={u} esClinica={esClinica} />
+                <TarjetaUsuario key={u.id} u={u} esClinica={esClinica} />
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop: tabla */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
+                    <th className="pb-2 pr-4 font-semibold">Nombre / correo</th>
+                    <th className="pb-2 pr-4 font-semibold">Telefono</th>
+                    <th className="pb-2 pr-4 font-semibold">{esClinica ? "Ciudad" : ""}</th>
+                    <th className="pb-2 pr-4 font-semibold">Estado</th>
+                    <th className="pb-2 font-semibold">Registro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {itemsFiltrados.map((u) => (
+                    <FilaUsuario key={u.id} u={u} esClinica={esClinica} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

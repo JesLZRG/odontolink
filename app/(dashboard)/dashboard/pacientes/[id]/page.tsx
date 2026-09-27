@@ -227,7 +227,7 @@ export default function PacienteDetallePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mt-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
                   <div className="bg-[var(--color-bg-dark)] rounded-xl border border-[var(--color-border-dark)] p-3 text-center">
                     <p className="text-white text-xl font-bold">{paciente.totalCitas}</p>
                     <p className="text-[var(--color-text-subtle)] text-xs mt-0.5">Citas totales</p>

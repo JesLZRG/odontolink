@@ -200,8 +200,8 @@ export function RegisterForm({ role }: RegisterFormProps) {
 
       <p className="text-xs text-slate-500 dark:text-[var(--color-text-muted)]">
         Al registrarte aceptas nuestros{" "}
-        <a href="#" className="text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline">Terminos de servicio</a> y{" "}
-        <a href="#" className="text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline">Politica de privacidad</a>.
+        <a href="/terminos" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline">Terminos de servicio</a> y{" "}
+        <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] dark:text-[var(--color-primary-light)] hover:underline">Politica de privacidad</a>.
       </p>
 
       <Button

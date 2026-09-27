@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import Link from "next/link"
 import { CalendarDays, ChevronDown, Filter, Menu, Plus, Search } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
@@ -9,7 +10,7 @@ import { CitaRow } from "@/components/agenda/CitaRow"
 import { CitaModal } from "@/components/agenda/CitaModal"
 import { useSession } from "@/components/auth/useSession"
 import type { Cita, EstadoCita } from "@/types"
-import { ESTADO_CITA_LABELS, ESPECIALIDAD_LABELS, cn, formatDate } from "@/lib/utils"
+import { ESTADO_CITA_LABELS, ESPECIALIDAD_LABELS, cn, formatDate, getInitials } from "@/lib/utils"
 
 interface Doctor { id: string; nombre: string; especialidades: string[] }
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
@@ -153,7 +154,13 @@ export default function AgendaPage() {
               <Plus className="h-4 w-4" />
               Nueva cita
             </button>
-            <div className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold">SP</div>
+            <Link
+              href="/cuenta"
+              title="Mi cuenta"
+              className="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold hover:opacity-90 transition-opacity"
+            >
+              {user ? getInitials(user.nombre) : ""}
+            </Link>
           </div>
         </header>
 

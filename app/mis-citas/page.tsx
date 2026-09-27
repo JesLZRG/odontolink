@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, CalendarClock, Loader2, LogOut, MapPin, Plane, Stethoscope } from "lucide-react"
+import { ArrowLeft, CalendarClock, Loader2, LogOut, MapPin, Plane, Stethoscope, User } from "lucide-react"
 import { logout, useSession } from "@/components/auth/useSession"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -93,13 +93,22 @@ export default function MisCitasPage() {
             <Image src="/logo.png" alt="OdontoLink" width={36} height={36} className="object-contain" />
             <span className="text-lg font-bold gradient-brand-text">OdontoLink</span>
           </Link>
-          <button
-            onClick={logout}
-            className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-red-600 transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            Cerrar sesion
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/cuenta"
+              className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-[var(--color-primary)] transition-colors"
+            >
+              <User className="h-4 w-4" />
+              Mi cuenta
+            </Link>
+            <button
+              onClick={logout}
+              className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-red-600 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Cerrar sesion</span>
+            </button>
+          </div>
         </div>
       </header>
 

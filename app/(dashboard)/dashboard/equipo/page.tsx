@@ -93,7 +93,9 @@ export default function EquipoPage() {
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={() => setShowForm(true)}>
-              <Plus className="h-4 w-4" /> Agregar doctor
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Agregar doctor</span>
+              <span className="sm:hidden">Agregar</span>
             </Button>
             <NotificationsBell />
             <Link

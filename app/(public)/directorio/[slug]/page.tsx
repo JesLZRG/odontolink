@@ -173,7 +173,7 @@ export default async function ClinicaDetallePage({ params }: { params: Promise<{
                   <Clock className="h-4 w-4 text-[var(--color-primary)]" />
                   Horario de atencion
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-6 gap-y-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
                   {DIAS.map(({ key, label }) => {
                     const horarioDia = clinica.horario[key]
                     return (

@@ -98,29 +98,49 @@ export default function DirectorioPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Sticky header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-0 sm:h-16 flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
           <Logo />
-          <div className="flex-1 max-w-2xl">
+
+          {/* Mobile filter button + account: same row as the logo on mobile */}
+          <div className="flex items-center gap-2 ml-auto sm:hidden">
+            <button
+              onClick={() => setMobileFiltersOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 h-9 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:border-[var(--color-primary)] transition-colors"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {activeFilterCount > 0 && (
+                <span className="bg-[var(--color-primary)] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+            <AccountLink />
+          </div>
+
+          {/* Search: own row on mobile, inline on sm+ */}
+          <div className="w-full sm:w-auto sm:flex-1 sm:max-w-2xl order-3 sm:order-none">
             <SearchBar
               value={filtros.busqueda}
               onChange={(v) => setFiltros((f) => ({ ...f, busqueda: v }))}
             />
           </div>
-          {/* Mobile filter button */}
-          <button
-            onClick={() => setMobileFiltersOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-3 h-10 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:border-[var(--color-primary)] transition-colors"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filtros
-            {activeFilterCount > 0 && (
-              <span className="ml-0.5 bg-[var(--color-primary)] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-          {/* Auth link */}
-          <AccountLink />
+
+          {/* Desktop filter button + account */}
+          <div className="hidden sm:flex items-center gap-4">
+            <button
+              onClick={() => setMobileFiltersOpen(true)}
+              className="lg:hidden flex items-center gap-2 px-3 h-10 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:border-[var(--color-primary)] transition-colors"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros
+              {activeFilterCount > 0 && (
+                <span className="ml-0.5 bg-[var(--color-primary)] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+            <AccountLink />
+          </div>
         </div>
       </header>
 
