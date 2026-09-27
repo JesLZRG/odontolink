@@ -12,7 +12,7 @@ import type { Clinica } from "@/types"
 interface DoctorPublic {
   id: string
   nombre: string
-  especialidad: string
+  especialidades: string[]
 }
 
 interface BookingFormProps {
@@ -64,7 +64,7 @@ export function BookingForm({ clinica, doctores }: BookingFormProps) {
   const esPacienteLogueado = user?.rol === "paciente"
 
   const especialidades = useMemo(
-    () => Array.from(new Set(doctores.map((d) => d.especialidad))),
+    () => Array.from(new Set(doctores.flatMap((d) => d.especialidades))),
     [doctores]
   )
 
@@ -85,7 +85,7 @@ export function BookingForm({ clinica, doctores }: BookingFormProps) {
   const [exito, setExito] = useState(false)
 
   const doctoresFiltrados = useMemo(
-    () => doctores.filter((d) => d.especialidad === especialidad),
+    () => doctores.filter((d) => d.especialidades.includes(especialidad)),
     [doctores, especialidad]
   )
 

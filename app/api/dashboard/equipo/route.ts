@@ -4,7 +4,13 @@ import { hashPassword } from "@/lib/auth/password"
 import { crearDoctorSchema } from "@/lib/auth/schemas"
 import { getCurrentUser } from "@/lib/auth/session"
 import { createUser, findUserByEmail, normalizeEmail, toPublic } from "@/lib/auth/store"
-import { createDoctor, listEquipoByClinica, type MiembroEquipo } from "@/lib/clinicas/store"
+import {
+  createDoctor,
+  listDoctoresSinCuenta,
+  listEquipoByClinica,
+  type DoctorPublic,
+  type MiembroEquipo,
+} from "@/lib/clinicas/store"
 import type { ApiResponse } from "@/types"
 
 // Los doctores no se registran publicamente: los crea la cuenta de la
@@ -17,8 +23,14 @@ export async function GET() {
   }
 
   try {
-    const equipo = await listEquipoByClinica(user.clinicaId)
-    const response: ApiResponse<MiembroEquipo[]> = { data: equipo, success: true }
+    const [equipo, sinCuenta] = await Promise.all([
+      listEquipoByClinica(user.clinicaId),
+      listDoctoresSinCuenta(user.clinicaId),
+    ])
+    const response: ApiResponse<{ equipo: MiembroEquipo[]; sinCuenta: DoctorPublic[] }> = {
+      data: { equipo, sinCuenta },
+      success: true,
+    }
     return NextResponse.json(response)
   } catch (error) {
     console.error("GET equipo error:", error)
@@ -35,13 +47,13 @@ export async function POST(request: NextRequest) {
   try {
     const parsed = crearDoctorSchema.safeParse(await request.json())
     if (!parsed.success) return validationFail(parsed.error)
-    const { nombre, email, password, especialidad } = parsed.data
+    const { nombre, email, password, especialidades } = parsed.data
 
     if (await findUserByEmail(email)) {
       return fail("Ya existe una cuenta con este correo", 409)
     }
 
-    const doctor = await createDoctor({ clinicaId: user.clinicaId, nombre, especialidad })
+    const doctor = await createDoctor({ clinicaId: user.clinicaId, nombre, especialidades })
     const cuenta = await createUser({
       email: normalizeEmail(email),
       nombre,

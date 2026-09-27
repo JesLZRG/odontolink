@@ -170,7 +170,7 @@ export async function findClinicaByIdOrSlug(idOrSlug: string): Promise<Clinica |
 export interface DoctorPublic {
   id: string
   nombre: string
-  especialidad: string
+  especialidades: string[]
   clinicaId: string
   activo: boolean
 }
@@ -178,7 +178,7 @@ export interface DoctorPublic {
 interface DoctorRow {
   id: string
   nombre: string
-  especialidad: string
+  especialidades: string[]
   clinica_id: string
   activo: boolean
 }
@@ -187,7 +187,7 @@ export function fromDoctorRow(row: DoctorRow): DoctorPublic {
   return {
     id: row.id,
     nombre: row.nombre,
-    especialidad: row.especialidad,
+    especialidades: row.especialidades,
     clinicaId: row.clinica_id,
     activo: row.activo,
   }
@@ -196,7 +196,7 @@ export function fromDoctorRow(row: DoctorRow): DoctorPublic {
 export async function listDoctoresByClinica(clinicaId: string): Promise<DoctorPublic[]> {
   const { data, error } = await supabaseAdmin()
     .from("doctores")
-    .select("id, nombre, especialidad, clinica_id, activo")
+    .select("id, nombre, especialidades, clinica_id, activo")
     .eq("clinica_id", clinicaId)
     .eq("activo", true)
   if (error) throw error
@@ -206,7 +206,7 @@ export async function listDoctoresByClinica(clinicaId: string): Promise<DoctorPu
 export async function findDoctorById(id: string): Promise<DoctorPublic | null> {
   const { data, error } = await supabaseAdmin()
     .from("doctores")
-    .select("id, nombre, especialidad, clinica_id, activo")
+    .select("id, nombre, especialidades, clinica_id, activo")
     .eq("id", id)
     .maybeSingle()
   if (error) throw error
@@ -220,7 +220,7 @@ export interface MiembroEquipo {
   usuarioId: string
   nombre: string
   email: string
-  especialidad: string
+  especialidades: string[]
   activo: boolean
   creadoEn: string
 }
@@ -228,7 +228,7 @@ export interface MiembroEquipo {
 export async function listEquipoByClinica(clinicaId: string): Promise<MiembroEquipo[]> {
   const { data, error } = await supabaseAdmin()
     .from("usuarios")
-    .select("id, email, nombre, activo, creado_en, doctor_id, doctores!inner(id, especialidad, clinica_id)")
+    .select("id, email, nombre, activo, creado_en, doctor_id, doctores!inner(id, especialidades, clinica_id)")
     .eq("rol", "doctor")
     .eq("doctores.clinica_id", clinicaId)
     .order("creado_en", { ascending: false })
@@ -241,7 +241,7 @@ export async function listEquipoByClinica(clinicaId: string): Promise<MiembroEqu
     activo: boolean
     creado_en: string
     doctor_id: string
-    doctores: { id: string; especialidad: string; clinica_id: string }
+    doctores: { id: string; especialidades: string[]; clinica_id: string }
   }
 
   return (data as unknown as Row[]).map((row) => ({
@@ -249,16 +249,38 @@ export async function listEquipoByClinica(clinicaId: string): Promise<MiembroEqu
     usuarioId: row.id,
     nombre: row.nombre,
     email: row.email,
-    especialidad: row.doctores.especialidad,
+    especialidades: row.doctores.especialidades,
     activo: row.activo,
     creadoEn: row.creado_en,
   }))
 }
 
+// Perfiles de doctores que ya existen (por ejemplo, de la semilla original o
+// de citas cargadas antes de que existiera el login de doctores) pero que
+// todavia no tienen cuenta de acceso. Se muestran aparte en /dashboard/equipo
+// para "darles acceso" sin crear un perfil duplicado.
+export async function listDoctoresSinCuenta(clinicaId: string): Promise<DoctorPublic[]> {
+  const client = supabaseAdmin()
+  const { data: doctores, error } = await client
+    .from("doctores")
+    .select("id, nombre, especialidades, clinica_id, activo")
+    .eq("clinica_id", clinicaId)
+  if (error) throw error
+
+  const { data: cuentas, error: cuentasError } = await client
+    .from("usuarios")
+    .select("doctor_id")
+    .not("doctor_id", "is", null)
+  if (cuentasError) throw cuentasError
+
+  const conCuenta = new Set((cuentas as { doctor_id: string }[]).map((u) => u.doctor_id))
+  return (doctores as DoctorRow[]).filter((d) => !conCuenta.has(d.id)).map(fromDoctorRow)
+}
+
 export interface NuevoDoctor {
   clinicaId: string
   nombre: string
-  especialidad: string
+  especialidades: string[]
   idiomas?: string[]
 }
 
@@ -272,10 +294,10 @@ export async function createDoctor(data: NuevoDoctor): Promise<DoctorPublic> {
       id,
       clinica_id: data.clinicaId,
       nombre: data.nombre,
-      especialidad: data.especialidad,
+      especialidades: data.especialidades,
       idiomas: data.idiomas ?? [],
     })
-    .select("id, nombre, especialidad, clinica_id, activo")
+    .select("id, nombre, especialidades, clinica_id, activo")
     .single()
   if (error) throw error
   return fromDoctorRow(row as DoctorRow)

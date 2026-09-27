@@ -206,9 +206,9 @@ export default async function ClinicaDetallePage({ params }: { params: Promise<{
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-slate-900 truncate">{doctor.nombre}</p>
-                          <p className="text-xs text-slate-500 flex items-center gap-1">
-                            <BadgeCheck className="h-3 w-3 text-[var(--color-primary)]" />
-                            {ESPECIALIDAD_LABELS[doctor.especialidad] ?? doctor.especialidad}
+                          <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
+                            <BadgeCheck className="h-3 w-3 text-[var(--color-primary)] flex-shrink-0" />
+                            {doctor.especialidades.map((e) => ESPECIALIDAD_LABELS[e] ?? e).join(", ")}
                           </p>
                         </div>
                       </div>

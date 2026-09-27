@@ -127,7 +127,7 @@ export interface Doctor {
   id: string
   nombre: string
   apellido: string
-  especialidad: Especialidad
+  especialidades: Especialidad[]
   clinicaId: string
   avatar?: string
   idiomas: Idioma[]

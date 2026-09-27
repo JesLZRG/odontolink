@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { ESPECIALIDADES } from "@/lib/especialidades"
 
 // Esquemas compartidos entre formularios (cliente) y rutas API (servidor)
 
@@ -42,7 +43,14 @@ export const crearDoctorSchema = z.object({
   nombre: z.string().trim().min(2, "Ingresa el nombre completo").max(120),
   email: emailSchema,
   password: passwordSchema,
-  especialidad: z.string().trim().min(2, "Ingresa la especialidad").max(60),
+  especialidades: z.array(z.enum(ESPECIALIDADES)).min(1, "Selecciona al menos una especialidad"),
+})
+
+// Da acceso al panel a un perfil de doctor que ya existe (sin crear uno
+// nuevo ni duplicar sus citas): solo hace falta correo y contrasena.
+export const activarDoctorSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
 })
 
 export const perfilSchema = z.object({

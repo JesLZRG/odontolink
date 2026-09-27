@@ -11,7 +11,7 @@ import { useSession } from "@/components/auth/useSession"
 import type { Cita, EstadoCita } from "@/types"
 import { ESTADO_CITA_LABELS, ESPECIALIDAD_LABELS, cn, formatDate } from "@/lib/utils"
 
-interface Doctor { id: string; nombre: string; especialidad: string }
+interface Doctor { id: string; nombre: string; especialidades: string[] }
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
 
 export default function AgendaPage() {

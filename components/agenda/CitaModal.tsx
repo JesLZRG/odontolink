@@ -8,7 +8,7 @@ import { X, Loader2, Plane } from "lucide-react"
 import type { Cita } from "@/types"
 import { ESPECIALIDAD_LABELS, ESTADO_CITA_LABELS, cn } from "@/lib/utils"
 
-interface Doctor { id: string; nombre: string; especialidad: string }
+interface Doctor { id: string; nombre: string; especialidades: string[] }
 
 const citaSchema = z.object({
   pacienteNombre: z.string().min(2, "Nombre requerido (min 2 caracteres)"),
