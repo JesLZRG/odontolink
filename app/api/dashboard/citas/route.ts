@@ -7,15 +7,16 @@ import type { ApiResponse, Cita } from "@/types"
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser()
-    if (!user) {
+    if (!user || (user.rol !== "clinica" && user.rol !== "doctor")) {
       return NextResponse.json({ data: [], success: false, message: "No autenticado" }, { status: 401 })
     }
     const { searchParams } = new URL(request.url)
-    // Cada clinica solo ve sus propias citas
+    // Cada clinica solo ve sus propias citas; un doctor, solo las suyas.
     const clinicaId = user.clinicaId
     const fecha = searchParams.get("fecha")
 
     let query = supabaseAdmin().from("citas").select("*").eq("clinica_id", clinicaId ?? "")
+    if (user.rol === "doctor") query = query.eq("doctor_id", user.doctorId ?? "")
     if (fecha) {
       const [inicio, fin] = diaRange(fecha)
       query = query.gte("fecha", inicio).lt("fecha", fin)

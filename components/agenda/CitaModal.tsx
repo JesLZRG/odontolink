@@ -81,7 +81,9 @@ export function CitaModal({ open, cita, defaultDate, doctores, onClose, onSave }
     } else {
       reset({
         pacienteNombre: "",
-        doctorId: "",
+        // Si solo hay un doctor disponible (p. ej. una cuenta de doctor viendo
+        // solo su propia agenda), se preselecciona: no tiene a nadie mas para elegir.
+        doctorId: doctores.length === 1 ? doctores[0].id : "",
         fecha: defaultDate ?? new Date().toISOString().split("T")[0],
         hora: "09:00",
         tratamiento: "",
@@ -90,7 +92,7 @@ export function CitaModal({ open, cita, defaultDate, doctores, onClose, onSave }
         esTurismo: false,
       })
     }
-  }, [cita, defaultDate, reset, open])
+  }, [cita, defaultDate, reset, open, doctores])
 
   if (!open) return null
 

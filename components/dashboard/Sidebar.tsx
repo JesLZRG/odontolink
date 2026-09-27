@@ -19,9 +19,10 @@ const NAV_ITEMS_CLINICA = [
   { href: "/dashboard/configuracion", icon: Settings, label: "Configuracion" },
 ]
 
-// Un doctor solo ve sus pacientes/expedientes asignados: nada de
-// estadisticas, equipo o configuracion de toda la clinica.
+// Un doctor solo ve su propia agenda y sus pacientes/expedientes asignados:
+// nada de estadisticas, equipo o configuracion de toda la clinica.
 const NAV_ITEMS_DOCTOR = [
+  { href: "/dashboard/agenda", icon: CalendarDays, label: "Agenda" },
   { href: "/dashboard/pacientes", icon: Users, label: "Pacientes" },
   { href: "/dashboard/mensajes", icon: MessageSquare, label: "Mensajes", badge: 5 },
 ]

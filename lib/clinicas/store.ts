@@ -397,6 +397,12 @@ export async function createCita(data: NuevaCita): Promise<Cita> {
   return fromCitaRow(row as CitaRow)
 }
 
+export async function findCitaById(id: string): Promise<Cita | null> {
+  const { data, error } = await supabaseAdmin().from("citas").select("*").eq("id", id).maybeSingle()
+  if (error) throw error
+  return data ? fromCitaRow(data as CitaRow) : null
+}
+
 // Citas no canceladas de un doctor en un dia dado, para calcular horarios libres
 export async function listCitasOcupadasDoctorDia(
   doctorId: string,

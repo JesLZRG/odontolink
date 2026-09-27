@@ -7,6 +7,7 @@ import { NotificationsBell } from "@/components/dashboard/NotificationsBell"
 import { AgendaCalendar } from "@/components/agenda/AgendaCalendar"
 import { CitaRow } from "@/components/agenda/CitaRow"
 import { CitaModal } from "@/components/agenda/CitaModal"
+import { useSession } from "@/components/auth/useSession"
 import type { Cita, EstadoCita } from "@/types"
 import { ESTADO_CITA_LABELS, ESPECIALIDAD_LABELS, cn, formatDate } from "@/lib/utils"
 
@@ -14,6 +15,8 @@ interface Doctor { id: string; nombre: string; especialidad: string }
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
 
 export default function AgendaPage() {
+  const { user } = useSession()
+  const esDoctor = user?.rol === "doctor"
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
@@ -40,7 +43,7 @@ export default function AgendaPage() {
   const fetchCitas = useCallback(async () => {
     setLoading(true)
     const mes = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`
-    const params = new URLSearchParams({ clinicaId: "1", mes })
+    const params = new URLSearchParams({ mes })
     if (filtrodoctor) params.set("doctorId", filtrodoctor)
     if (filtroEstado) params.set("estado", filtroEstado)
     try {
@@ -93,7 +96,7 @@ export default function AgendaPage() {
     const method = isEdit ? "PATCH" : "POST"
     const body = isEdit
       ? { id: data.id, pacienteNombre: data.pacienteNombre, doctorId: data.doctorId, fecha: data.fecha, duracionMinutos: data.duracionMinutos, tratamiento: data.tratamiento, notas: data.notas, esTurismo: data.esTurismo }
-      : { clinicaId: "1", ...data }
+      : data
     await fetch("/api/agenda/citas", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
     setModalOpen(false)
     setEditingCita(null)
@@ -169,18 +172,20 @@ export default function AgendaPage() {
               />
             </div>
 
-            {/* Filtro doctor */}
-            <div className="relative">
-              <select
-                value={filtrodoctor}
-                onChange={(e) => setFiltroDoctor(e.target.value)}
-                className="appearance-none pl-3 pr-8 py-2 bg-[var(--color-surface-dark)] border border-[var(--color-border-dark)] rounded-xl text-[var(--color-text-muted)] text-sm focus:outline-none focus:border-[var(--color-primary)]/50 transition-colors cursor-pointer"
-              >
-                <option value="">Todos los doctores</option>
-                {doctores.map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
-              </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-subtle)] pointer-events-none" />
-            </div>
+            {/* Filtro doctor: un doctor solo ve su propia agenda, sin selector */}
+            {!esDoctor && (
+              <div className="relative">
+                <select
+                  value={filtrodoctor}
+                  onChange={(e) => setFiltroDoctor(e.target.value)}
+                  className="appearance-none pl-3 pr-8 py-2 bg-[var(--color-surface-dark)] border border-[var(--color-border-dark)] rounded-xl text-[var(--color-text-muted)] text-sm focus:outline-none focus:border-[var(--color-primary)]/50 transition-colors cursor-pointer"
+                >
+                  <option value="">Todos los doctores</option>
+                  {doctores.map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-subtle)] pointer-events-none" />
+              </div>
+            )}
 
             {/* Filtro estado */}
             <div className="relative">
